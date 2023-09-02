@@ -1,7 +1,12 @@
-import express from 'express';
+const express = require('express');
+
+//routers
+const clienteRouter = require('./routes/clienteRouter.js');
 
 const app = express();
-
 app.use(express.json());
 
-export default app;
+//mounting routes
+app.use('/api/clientes/', clienteRouter);
+
+module.exports = app;
