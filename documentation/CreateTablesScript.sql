@@ -37,9 +37,14 @@ CREATE TABLE Ciudades (
   CONSTRAINT fk_id_estado FOREIGN KEY (id_estado) REFERENCES (Estados.id_estado) ON DELETE CASCADE
 );
 
-CREATE TABLE Clientes (
+CREATE TABLE Roles (
+  id_rol SERIAL,
+  nombre VARCHAR(50)
+);
+
+CREATE TABLE Usuarios (
   --primary key
-  id_cliente SERIAL,
+  id_usuario SERIAL,
   --Other attributes
   nombre VARCHAR(50) NOT NULL,
   paterno VARCHAR(50) NOT NULL,
@@ -48,8 +53,11 @@ CREATE TABLE Clientes (
   email VARCHAR(50) NOT NULL,
   contrasena VARCHAR(50) NOT NULL,
   telefono INTEGER,
+  --foreign keys
+  id_rol INTEGER,
   --Constraints
-  CONSTRAINT pk_id_cliente PRIMARY KEY (id_cliente)
+  CONSTRAINT pk_id_usuario PRIMARY KEY (id_usuario),
+  CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES (Roles.id_rol)
 );
 
 CREATE TABLE Empresas (
@@ -87,10 +95,10 @@ CREATE TABLE Viajes (
   --primary key
   id_viaje SERIAL,
   --Foreign keys
-  id_cliente INTEGER,
+  id_usuario INTEGER,
   --Constraints
   CONSTRAINT pk_id_viaje PRIMARY KEY (id_viaje),
-  CONSTRAINT fk_id_cliente FOREIGN KEY (id_cliente) REFERENCES (Clientes.id_cliente) ON DELETE CASCADE
+  CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES (Usuarios.id_usuario) ON DELETE CASCADE
 );
 
 CREATE TABLE Destinos (
@@ -144,12 +152,12 @@ CREATE TABLE Reservaciones (
   dias INTEGER,
   fecha_inicio DATE,
   --Foreign keys
-  id_cliente INTEGER,
+  id_usuario INTEGER,
   id_habitacion INTEGER,
   id_destino INTEGER,
   --Constraints
   CONSTRAINT pk_id_reservacion PRIMARY KEY (id_reservacion),
-  CONSTRAINT fk_id_cliente FOREIGN KEY (id_cliente) REFERENCES (Clientes.id_cliente) ON DELETE CASCADE,
+  CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES (Usuarios.id_usuario) ON DELETE CASCADE,
   CONSTRAINT fk_id_habitacion FOREIGN KEY (id_habitacion) REFERENCES (Habitaciones.id_habitacion) ON DELETE CASCADE,
   CONSTRAINT fk_id_destino FOREIGN KEY (id_destino) REFERENCES (Destinos.id_destino) ON DELETE CASCADE
 );
