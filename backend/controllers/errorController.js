@@ -12,7 +12,7 @@ const sendErrorDevelopment = (err, res) => {
     // 2) Send a generic message
     res.status(500).json({
       status: 'error',
-      message: 'Something went very wrong!',
+      message: `Something went very wrong: ${err.message}`,
       error: err
     });
   }
