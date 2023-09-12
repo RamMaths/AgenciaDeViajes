@@ -14,5 +14,6 @@ app.use('/api/clientes/', clienteRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`No se puede encontrar la ruta`, 404));
 });
+app.use(globalErrorHandler);
 
 module.exports = app;

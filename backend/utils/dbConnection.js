@@ -1,6 +1,6 @@
-const Pool = require('pg').Pool;
+const Client = require('pg').Client;
 
-const pool = new Pool({
+const client = new Client({
   host: 'localhost',
   user: 'ram',
   database: 'agencia',
@@ -8,4 +8,4 @@ const pool = new Pool({
   port: 5432
 });
 
-module.exports = pool;
+module.exports = client;

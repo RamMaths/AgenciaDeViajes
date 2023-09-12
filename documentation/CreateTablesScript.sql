@@ -38,8 +38,12 @@ CREATE TABLE Ciudades (
 );
 
 CREATE TABLE Roles (
+  --primary key
   id_rol SERIAL,
-  nombre VARCHAR(50)
+  --Other attributes
+  nombre VARCHAR(50),
+  --Constraints
+  CONSTRAINT pk_id_rol PRIMARY KEY (id_rol)
 );
 
 CREATE TABLE Usuarios (
@@ -50,14 +54,15 @@ CREATE TABLE Usuarios (
   paterno VARCHAR(50) NOT NULL,
   materno VARCHAR(50),
   fecha_nac DATE NOT NULL,
-  email VARCHAR(50) NOT NULL,
-  contrasena VARCHAR(50) NOT NULL,
-  telefono INTEGER,
+  email VARCHAR(50) NOT NULL UNIQUE,
+  contrasena VARCHAR(100) NOT NULL,
+  fecha_cambio_contra DATE,
+  telefono VARCHAR(10),
   --foreign keys
-  id_rol INTEGER,
+  id_rol INTEGER DEFAULT 1,
   --Constraints
   CONSTRAINT pk_id_usuario PRIMARY KEY (id_usuario),
-  CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES (Roles.id_rol)
+  CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES Roles(id_rol)
 );
 
 CREATE TABLE Empresas (
