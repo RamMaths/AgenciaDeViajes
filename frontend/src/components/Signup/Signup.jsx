@@ -1,3 +1,6 @@
+//modules
+
+
 //bootstrap components
 import { Container } from 'react-bootstrap';
 import { Form, Row, Col, Button } from 'react-bootstrap';
@@ -25,7 +28,7 @@ const Signup = () => {
       for(const [key, value] of Object.entries(form)) {
         newForm[key] = value.trim();
       }
-      console.log(newForm);
+
       return newForm;
     });
   };
@@ -37,10 +40,10 @@ const Signup = () => {
   };
 
   return (
-    <Container className='mt-5'>
+    <Container className='mt-5 mb-5'>
       <Form className='' onSubmit={handleSubmit}>
         <Container>
-          <Row>
+          <Row className='row row-cols-1 row-cols-md-2'>
             <Col>
               <Form.Group className='mb-3' controlId='nombreField'>
                 <Form.Label>
@@ -49,9 +52,6 @@ const Signup = () => {
                 <Form.Control type='text' name='nombre' onChange={handleChange}></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='paternoField'>
                 <Form.Label>
@@ -60,9 +60,6 @@ const Signup = () => {
                 <Form.Control type='text' name='paterno' onChange={handleChange}></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='maternoField'>
                 <Form.Label>
@@ -71,9 +68,6 @@ const Signup = () => {
                 <Form.Control type='text' name='materno' onChange={handleChange}></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='fechaNacField'>
                 <Form.Label>
@@ -82,9 +76,6 @@ const Signup = () => {
                 <Form.Control type='date' name='fecha_nac' onChange={handleChange}></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='emailField'>
                 <Form.Label>
@@ -93,9 +84,6 @@ const Signup = () => {
                 <Form.Control type='email' name='email' onChange={handleChange} placeholder='nombre@ejemplo.com'></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='contrasenaField'>
                 <Form.Label>
@@ -104,28 +92,21 @@ const Signup = () => {
                 <Form.Control type='password' name='contrasena' onChange={handleChange} placeholder='Contraseña'></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='telefonoField'>
                 <Form.Label>
                   Telefono
                 </Form.Label>
-                <Form.Control type='number' name='telefono' maxLength="10" onChange={handleChange}></Form.Control>
+                <Form.Control type='number' name='telefono' maxLength="10" placeholder='10 Digitos' onChange={handleChange}></Form.Control>
               </Form.Group>
             </Col>
           </Row>
-
-          <Row>
-            <Col className='p-3 d-flex justify-content-center align-items-center'>
+          <Row className='row row-cols-1 mt-3'>
+            <Col className='d-flex justify-content-center align-items-center'>
               <Button type='submit'>Crear cuenta</Button>
             </Col>
-          </Row>
-
-          <Row>
-            <Col className='pt-3 d-flex justify-content-center align-items-center'>
-              <span>¿Ya tienes una cuenta? Inicia sesión<Link className='nav-link text-primary' to='/login'><u>aquí</u></Link></span>
+            <Col className='d-flex justify-content-center text-center align-middle mt-3'>
+              <span className=''>¿Ya tienes una cuenta? Inicia sesión<Link className='nav-link text-primary' to='/login'><u>aquí</u></Link></span>
             </Col>
           </Row>
       </Container>

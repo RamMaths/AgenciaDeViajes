@@ -27,7 +27,7 @@ const Login = () => {
     <Container className='mt-5'>
       <Form className='' onSubmit={handleSubmit}>
         <Container>
-          <Row>
+          <Row className='row row-cols-1'>
             <Col>
               <Form.Group className='mb-3' controlId='emailField'>
                 <Form.Label>
@@ -36,8 +36,6 @@ const Login = () => {
                 <Form.Control type='email' name='email' onChange={handleChange} placeholder='nombre@ejemplo.com'></Form.Control>
               </Form.Group>
             </Col>
-          </Row>
-          <Row>
             <Col>
               <Form.Group className='mb-3' controlId='contrasenaField'>
                 <Form.Label>
@@ -47,13 +45,11 @@ const Login = () => {
               </Form.Group>
             </Col>
           </Row>
-          <Row>
+          <Row className='row row-cols-1 mt-3'>
             <Col className='p-3 d-flex justify-content-center align-items-center'>
               <Button type='submit'>Iniciar sesión</Button>
             </Col>
-          </Row>
-          <Row>
-            <Col className='pt-3 d-flex justify-content-center align-items-center'>
+            <Col className='pt-3 d-flex justify-content-center align-items-center text-center align-middle'>
               <span>¿No tienes una cuenta? Crea una <Link className='nav-link text-primary' to='/signup'><u>aquí</u></Link></span>
             </Col>
           </Row>
