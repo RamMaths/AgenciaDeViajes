@@ -18,7 +18,7 @@ const sendToken = (token, statusCode, res) => {
     httpOnly: true
   }
 
-  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
   res.cookie('jwt', token);
 
@@ -61,6 +61,16 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.signUp = catchAsync(async (req, res, next) => {
 
+  if(
+    !req.body.nombre ||
+    !req.body.paterno ||
+    !req.body.materno ||
+    !req.body.fecha_nac ||
+    !req.body.email ||
+    !req.body.contrasena ||
+    !req.body.telefono
+  ) return next(new AppError('Debes ingresar todos los campos mencionados', 400));
+
   //creamos al usuario en la base de datos
   const query = await Usuario.crear({
     nombre: req.body.nombre,
@@ -85,7 +95,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, contrasena: reqContra } = req.body;
 
   //si no hay nada en la petición mandamos un error
-  if(!email || !reqContra) return next(new AppError('Debes proporcionar un usuario y una contraseña'), 401);
+  if(!email || !reqContra) return next(new AppError('Debes proporcionar un usuario y una contraseña', 400));
 
   //buscamos el usuario en la base de datos
   const query = Usuario.buscar({

@@ -13,9 +13,9 @@ const NavBar = () => {
         <Navbar.Toggle aria-controls='basic-navbar-nav' />
         <Navbar.Collapse id='basic-navbar-nav'>
           <Nav className='me-auto'>
-            <Link className='nav-link' to='/'>Inicio</Link>
-            <Link className='nav-link' to='/login'>Log in</Link>
-            <Link className='nav-link' to='/signup'>Sign up</Link>
+            <Link className='ps-xs-3 nav-link' to='/'>Inicio</Link>
+            <Link className='ps-xs-3 nav-link' to='/login'>Log in</Link>
+            <Link className='ps-xs-3 nav-link' to='/signup'>Sign up</Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

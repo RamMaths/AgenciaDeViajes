@@ -4,12 +4,17 @@ import {
   createBrowserRouter,
   RouterProvider
 } from 'react-router-dom';
+import { useState, createContext, useContext } from 'react';
 
 //components
 import Root from './components/Root';
 import ErrorPage from './ErrorPage';
-import Login from './components/Login/Login';
-import Signup from './components/Signup/Signup';
+import Login from './components/Auth/Login';
+import Signup from './components/Auth/Signup';
+
+//Global Context
+const GlobalContext = createContext();
+export const useGlobalContext = () => useContext(GlobalContext);
 
 //router
 const router = createBrowserRouter([
@@ -32,9 +37,16 @@ const router = createBrowserRouter([
 
 //App component
 const App = () => {
+  const [error, setError] = useState({
+    show: false,
+    message: ''
+  });
+
   return (
-    <RouterProvider router={router}>
-    </RouterProvider>
+    <GlobalContext.Provider value={{error, setError}}>
+      <RouterProvider router={router}>
+      </RouterProvider>
+    </GlobalContext.Provider>
   );
 };
 

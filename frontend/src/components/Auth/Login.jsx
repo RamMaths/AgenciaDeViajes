@@ -1,3 +1,6 @@
+//modules
+import axios from 'axios';
+
 //bootstrap components
 import { Container } from 'react-bootstrap';
 import { Form, Row, Col, Button } from 'react-bootstrap';
@@ -6,17 +9,50 @@ import { Link } from 'react-router-dom';
 //React components
 import { useState } from 'react';
 
+//my components
+import { useGlobalContext } from '../../App';
+import DangerAlert from '../DangerAlert';
+
 const Login = () => {
 
   const [form, setForm] = useState({
     email: '',
     contrasena: ''
-  })
+  });
+  const { error, setError } = useGlobalContext();
+
+  let sent = false;
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError({...error, show: false});
 
-    console.log(form);
+    setForm(form => {
+      const newForm = {};
+
+      for(const [key, value] of Object.entries(form)) {
+        newForm[key] = value.trim();
+      }
+
+      if(!sent) {
+        axios({
+          method: 'post',
+          url: 'http://localhost:3000/api/clientes/login',
+          data: newForm
+        }).then(res => {
+          console.log(res.data);
+        }, err => {
+          console.error(err);
+          setError({
+            show: true,
+            message: err.response.data.message
+          });
+        });
+      }
+
+      sent = true;
+      return newForm;
+    });
   };
 
   const handleChange = (e) => {
@@ -25,6 +61,7 @@ const Login = () => {
 
   return (
     <Container className='mt-5'>
+      {error.show && <DangerAlert/>}
       <Form className='' onSubmit={handleSubmit}>
         <Container>
           <Row className='row row-cols-1'>
