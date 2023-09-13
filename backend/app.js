@@ -1,4 +1,7 @@
+//modules
 const express = require('express');
+const cors = require('cors');
+//utils
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -7,6 +10,7 @@ const usuarioRouter = require('./routes/usuarioRouter');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 //mounting routes
 app.use('/api/clientes/', usuarioRouter);

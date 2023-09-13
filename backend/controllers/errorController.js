@@ -1,4 +1,17 @@
-const sendErrorDevelopment = (err, res) => {
+const AppError = require('../utils/appError');
+
+const handleRepetition = () => new AppError('Ya tenemos una cuenta registrada con ese email', 400);
+
+const sendErrorDev = (err, res) => {
+  res.status(err.statusCode).json({
+    status: err.status,
+    error: err,
+    message: err.message,
+    stack: err.stack
+  });
+}
+
+const sendErrorProd = (err, res) => {
   if(err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -12,8 +25,7 @@ const sendErrorDevelopment = (err, res) => {
     // 2) Send a generic message
     res.status(500).json({
       status: 'error',
-      message: `Something went very wrong: ${err.message}`,
-      error: err
+      message: `Something went very wrong: Internal server error`
     });
   }
 };
@@ -24,8 +36,11 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'internal error';
 
   if(process.env.NODE_ENV === 'development') {
-    sendErrorDevelopment(err, res);
+    sendErrorDev(err, res);
   } else if(process.env.NODE_ENV === 'production') {
-
+    let error = Object.assign(err);
+    if(error.constraint === 'usuarios_email_key') error = handleRepetition();
+    sendErrorProd(error, res);
   }
+  
 };

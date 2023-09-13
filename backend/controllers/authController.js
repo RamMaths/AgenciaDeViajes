@@ -18,7 +18,7 @@ const sendToken = (token, statusCode, res) => {
     httpOnly: true
   }
 
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
   res.cookie('jwt', token);
 
@@ -94,7 +94,6 @@ exports.login = catchAsync(async (req, res, next) => {
     'id_usuario',
     'contrasena',
   ]);
-  console.log(query);
   const client = await pool.connect();
   const qRes = await pool.query(query);
   const usuario = qRes.rows[0];
