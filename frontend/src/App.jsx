@@ -2,39 +2,59 @@
 import * as React from 'react';
 import {
   createBrowserRouter,
-  RouterProvider
+  RouterProvider,
+  Navigate
 } from 'react-router-dom';
+import { useState, createContext, useContext } from 'react';
 
-//components
-import Root from './components/Root';
+//components ---------------------------------------------
+import PublicRoot from './components/Auth/PublicRoot';
 import ErrorPage from './ErrorPage';
-import Login from './components/Login/Login';
-import Signup from './components/Signup/Signup';
+import Login from './components/Auth/Login';
+import Signup from './components/Auth/Signup';
+import HomeRoot from './components/Home/HomeRoot';
 
-//router
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root/>,
-    errorElement: <ErrorPage/>,
-    children: [
-      {
-        path: "/login/",
-        element: <Login/>
-      },
-      {
-        path: "/signup",
-        element: <Signup/>
-      }
-    ]
-  }
-]);
+//Global Context
+const GlobalContext = createContext();
+export const useGlobalContext = () => useContext(GlobalContext);
 
 //App component
 const App = () => {
+  const [error, setError] = useState({
+    show: false,
+    message: ''
+  });
+  const [user, setUser] = useState(false);
+
+  //router
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: !user ? <PublicRoot/> : <Navigate to='/home'/>,
+      errorElement: <ErrorPage/>,
+      children: [
+        {
+          path: "/login/",
+          element: <Login/>
+        },
+        {
+          path: "/signup",
+          element: <Signup/>
+        }
+      ]
+    },
+    {
+      path: '/home/',
+      element: user ? <HomeRoot/> : <Navigate to='/login'/>,
+      errorElement: <ErrorPage/>,
+    }
+  ]);
+
   return (
-    <RouterProvider router={router}>
-    </RouterProvider>
+    <GlobalContext.Provider value={{error, setError, user, setUser}}>
+      <RouterProvider router={router}>
+      </RouterProvider>
+    </GlobalContext.Provider>
   );
 };
 

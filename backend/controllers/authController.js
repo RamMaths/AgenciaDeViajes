@@ -12,7 +12,7 @@ const signToken = (id) => {
   });
 };
 
-const sendToken = (token, statusCode, res) => {
+const sendToken = (token, statusCode, res, usuario) => {
   const cookieOptions = {
     expires: new Date(Date.now + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000),
     httpOnly: true
@@ -24,6 +24,7 @@ const sendToken = (token, statusCode, res) => {
 
   res.status(statusCode).json({
     status: 'success',
+    data: usuario,
     token
   });
 }
@@ -61,6 +62,15 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.signUp = catchAsync(async (req, res, next) => {
 
+  if(
+    !req.body.nombre ||
+    !req.body.paterno ||
+    !req.body.fecha_nac ||
+    !req.body.email ||
+    !req.body.contrasena ||
+    !req.body.telefono
+  ) return next(new AppError('Debes ingresar todos los campos mencionados', 400));
+
   //creamos al usuario en la base de datos
   const query = await Usuario.crear({
     nombre: req.body.nombre,
@@ -74,39 +84,40 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
   const client = await pool.connect();
   const qRes = await pool.query(query);
-  const id = qRes.rows[0].id_usuario;
+  const usuario = { ...qRes.rows[0] };
+  delete usuario.contrasena;
+  const id = usuario.id_usuario;
   const token = signToken(id);
   client.release();
 
-  sendToken(token, 200, res);
+  sendToken(token, 200, res, usuario);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, contrasena: reqContra } = req.body;
 
   //si no hay nada en la petición mandamos un error
-  if(!email || !reqContra) return next(new AppError('Debes proporcionar un usuario y una contraseña'), 401);
+  if(!email || !reqContra) return next(new AppError('Debes proporcionar un usuario y una contraseña', 400));
 
   //buscamos el usuario en la base de datos
   const query = Usuario.buscar({
     email
   }, [
-    'id_usuario',
-    'contrasena',
+    '*'
   ]);
-  console.log(query);
   const client = await pool.connect();
   const qRes = await pool.query(query);
   const usuario = qRes.rows[0];
   client.release();
 
   //si no encontramos el usuario en la base de datos mandamos un error
-  if(!usuario.id_usuario) return next(new AppError('El usuario o la contraseña son incorrectos'), 401);
+  if(!usuario?.id_usuario) return next(new AppError('El usuario o la contraseña son incorrectos'), 401);
 
   //validamos la contraseña
   if(! await Usuario.comparaContrasena(reqContra, usuario.contrasena)) return next(new AppError('El usuario o la contraseña son incorrectos', 401));
 
   //si pasó los filtros enviamos el token de inicio de sesión
   const token = signToken(usuario.id_usuario);
-  sendToken(token, 200, res);
+  delete usuario.contrasena;
+  sendToken(token, 200, res, usuario);
 });
