@@ -19,7 +19,7 @@ const Login = () => {
     email: '',
     contrasena: ''
   });
-  const { error, setError } = useGlobalContext();
+  const { error, setError, user, setUser} = useGlobalContext();
 
   let sent = false;
 
@@ -40,7 +40,7 @@ const Login = () => {
           url: 'http://localhost:3000/api/clientes/login',
           data: newForm
         }).then(res => {
-          console.log(res.data);
+          setUser(res.data.data);
         }, err => {
           console.error(err);
           setError({

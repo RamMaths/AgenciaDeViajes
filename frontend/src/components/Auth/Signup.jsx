@@ -13,6 +13,8 @@ import { createContext, useContext, useState } from 'react';
 import { useGlobalContext } from '../../App';
 import DangerAlert from '../DangerAlert';
 
+import { useNavigate } from 'react-router-dom';
+
 const Signup = () => {
   const [form, setForm] = useState({
     nombre: '',
@@ -26,44 +28,39 @@ const Signup = () => {
 
   const { error, setError } = useGlobalContext();
 
+  const navigate = useNavigate();
+
   let sent = false;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     //cleaning the inputs
     setError({...error, show: false});
-    setForm(form => {
-      const newForm = {};
-      
-      for(const [key, value] of Object.entries(form)) {
-        newForm[key] = value.trim();
-      }
 
-      if(!sent) {
-        axios({
-          method: 'post',
-          url: 'http://localhost:3000/api/clientes/signup',
-          data: newForm
-        }).then(res => {
-          console.log(res.data);
-        }, err => {
-          console.error(err);
-          setError({
-            show: true,
-            message: err.response.data.message
-          });
+    const formData = new FormData(e.currentTarget);
+    const formObj = Object.fromEntries(formData.entries());
+
+    for(const [key, value] of Object.entries(formObj)) {
+      formObj[key] = value.trim();
+    }
+    
+    if(!sent) {
+      axios({
+        method: 'post',
+        url: 'http://localhost:3000/api/clientes/signup',
+        data: formObj
+      }).then(res => {
+        window.location.replace('/login');
+      }, err => {
+        console.error(err);
+        setError({
+          show: true,
+          message: err.response.data.message
         });
-      }
+      });
+    }
 
-      sent = true;
-      return newForm;
-    });
-  };
-
-  const handleChange = (e) => {
-    if(e.target.name == 'telefono' && `${e.target.value}`.length > 10) return;
-
-    setForm({...form, [e.target.name]: e.target.value});
+    sent = true;
   };
 
   return (
@@ -77,7 +74,7 @@ const Signup = () => {
                 <Form.Label>
                   Nombre
                 </Form.Label>
-                <Form.Control type='text' name='nombre' onChange={handleChange}></Form.Control>
+                <Form.Control type='text' name='nombre' ></Form.Control>
               </Form.Group>
             </Col>
             <Col>
@@ -85,7 +82,7 @@ const Signup = () => {
                 <Form.Label>
                   Apellido Paterno
                 </Form.Label>
-                <Form.Control type='text' name='paterno' onChange={handleChange}></Form.Control>
+                <Form.Control type='text' name='paterno' ></Form.Control>
               </Form.Group>
             </Col>
             <Col>
@@ -93,7 +90,7 @@ const Signup = () => {
                 <Form.Label>
                   Apellido Materno
                 </Form.Label>
-                <Form.Control type='text' name='materno' onChange={handleChange}></Form.Control>
+                <Form.Control type='text' name='materno' placeholder='Opcional'></Form.Control>
               </Form.Group>
             </Col>
             <Col>
@@ -101,7 +98,7 @@ const Signup = () => {
                 <Form.Label>
                   Fecha de Nacimiento
                 </Form.Label>
-                <Form.Control type='date' name='fecha_nac' onChange={handleChange}></Form.Control>
+                <Form.Control type='date' name='fecha_nac' ></Form.Control>
               </Form.Group>
             </Col>
             <Col>
@@ -109,7 +106,7 @@ const Signup = () => {
                 <Form.Label>
                   Correo electrónico
                 </Form.Label>
-                <Form.Control type='email' name='email' onChange={handleChange} placeholder='nombre@ejemplo.com'></Form.Control>
+                <Form.Control type='email' name='email' placeholder='nombre@ejemplo.com'></Form.Control>
               </Form.Group>
             </Col>
             <Col>
@@ -117,7 +114,7 @@ const Signup = () => {
                 <Form.Label>
                   Contraseña
                 </Form.Label>
-                <Form.Control type='password' name='contrasena' onChange={handleChange} placeholder='Contraseña'></Form.Control>
+                <Form.Control type='password' name='contrasena' placeholder='Contraseña'></Form.Control>
               </Form.Group>
             </Col>
             <Col>
@@ -125,7 +122,7 @@ const Signup = () => {
                 <Form.Label>
                   Telefono
                 </Form.Label>
-                <Form.Control type='number' name='telefono' maxLength="10" placeholder='10 Digitos' onChange={handleChange}></Form.Control>
+                <Form.Control type='number' name='telefono' maxLength='10' placeholder='10 Digitos'></Form.Control>
               </Form.Group>
             </Col>
           </Row>
