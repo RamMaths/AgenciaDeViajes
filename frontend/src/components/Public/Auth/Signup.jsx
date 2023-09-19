@@ -10,8 +10,8 @@ import { Link } from 'react-router-dom';
 import { createContext, useContext, useState } from 'react';
 
 //my components
-import { useGlobalContext } from '../../App';
-import DangerAlert from '../DangerAlert';
+import { useGlobalContext } from '../../../App';
+import DangerAlert from '../../DangerAlert';
 
 import { useNavigate } from 'react-router-dom';
 

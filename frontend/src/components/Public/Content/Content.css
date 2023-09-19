@@ -1,0 +1,19 @@
+.own-card-img {
+  max-width: 18rem;
+}
+
+@media screen and (min-width: 1250px) {
+  .carousel {
+    max-width: 60rem;
+  }
+}
+
+@media screen and (max-width: 750px) {
+  .own-card-img {
+    max-width: 12rem;
+  }
+
+  .own-card-title {
+    size: 1rem;
+  }
+}

@@ -1,0 +1,7 @@
+.menu-list-item {
+  cursor: pointer;
+}
+
+.menu-list-item:hover {
+  background-color: #dedede;
+}

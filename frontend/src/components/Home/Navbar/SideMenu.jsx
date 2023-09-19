@@ -10,6 +10,9 @@ import { useHomeNavContext } from './Navbar';
 
 //my components
 
+//css
+import './SideMenu.css';
+
 const SideMenu = () => {
 
   const { showMenu, setShowMenu } = useHomeNavContext();
@@ -25,9 +28,9 @@ const SideMenu = () => {
           <Offcanvas.Title>Menú</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <div className='d-flex justify-content-start align-items-center w-100 border-top border-bottom' onClick={handleLogOut}>
+          <div className='d-flex justify-content-start align-items-center w-100 border-top border-bottom menu-list-item ' onClick={handleLogOut}>
             <ListGroup.Item className='mt-2 mb-2'>
-              <span className='text-secondary fs-5 align-middle'><i className="bi bi-box-arrow-in-left me-3 fs-2"></i>Salir</span>
+              <span className='text-secondary fs-5 align-middle ms-3'><i className="bi bi-box-arrow-in-left me-3 fs-2"></i>Salir</span>
             </ListGroup.Item>
           </div>
         </Offcanvas.Body>
