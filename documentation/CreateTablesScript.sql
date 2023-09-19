@@ -114,13 +114,13 @@ CREATE TABLE Destinos (
   fecha_llegada DATE,
   --Foreign keys
   id_origen INTEGER,
-  id_destino INTEGER,
+  id_destino_final INTEGER,
   id_transporte INTEGER,
   id_viaje INTEGER,
   --Constraints
   CONSTRAINT pk_id_destino PRIMARY KEY (id_destino),
   CONSTRAINT fk_id_origen FOREIGN KEY (id_origen) REFERENCES Ciudades(id_ciudad) ON DELETE CASCADE,
-  CONSTRAINT fk_id_destino FOREIGN KEY (id_destino) REFERENCES Ciudades(id_ciudad) ON DELETE CASCADE,
+  CONSTRAINT fk_id_destino_final FOREIGN KEY (id_destino_final) REFERENCES Ciudades(id_ciudad) ON DELETE CASCADE,
   CONSTRAINT fk_id_transporte FOREIGN KEY (id_transporte) REFERENCES Transportes(id_transporte) ON DELETE CASCADE
 );
 
@@ -147,7 +147,7 @@ CREATE TABLE Habitaciones (
   id_hotel INTEGER,
   --Constraints
   CONSTRAINT pk_id_habitacion PRIMARY KEY (id_habitacion),
-  CONSTRAINT fk_id_hotel FOREIGN KEY (id) REFERENCES Hoteles(id_hotel) ON DELETE CASCADE
+  CONSTRAINT fk_id_hotel FOREIGN KEY (id_hotel) REFERENCES Hoteles(id_hotel) ON DELETE CASCADE
 );
 
 CREATE TABLE Reservaciones (

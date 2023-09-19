@@ -6,9 +6,10 @@
 - [ ] Create the Transports Model
 - [ ] Look for the latitutde and Longitude of the <u>Cities</u> that are going to be saved
 - [ ] Look for the design of the app
-- [ ] Create Home page
+- [ ] Create Home page where the user is authenticated
 
 # In Progress
+- [ ] Create page where the user isn't authenticated
 - [ ] Protect middleware on the auth controller
 - [ ] Look for the latitutde and Longitude of the <u>Countries</u> that are going to be saved
 
@@ -20,3 +21,4 @@
 - [x] Initialize React Project
 - [x] Create Login page 
 - [x] Create Signup page 
+- [x] Improve side menu hover for each component in the list

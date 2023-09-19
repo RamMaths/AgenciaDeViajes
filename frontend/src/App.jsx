@@ -8,10 +8,10 @@ import {
 import { useState, createContext, useContext } from 'react';
 
 //components ---------------------------------------------
-import PublicRoot from './components/Auth/PublicRoot';
+import PublicRoot from './components/Public/PublicRoot';
 import ErrorPage from './ErrorPage';
-import Login from './components/Auth/Login';
-import Signup from './components/Auth/Signup';
+import Login from './components/Public/Auth/Login';
+import Signup from './components/Public/Auth/Signup';
 import HomeRoot from './components/Home/HomeRoot';
 
 //Global Context
