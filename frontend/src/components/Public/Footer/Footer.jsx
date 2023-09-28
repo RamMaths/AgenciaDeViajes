@@ -6,7 +6,7 @@ const Footer = () => {
 
   return (
     <footer 
-      className={`footer
+      className={`
       d-flex 
       flex-wrap 
       justify-content-between 
@@ -14,6 +14,7 @@ const Footer = () => {
       text-secondary 
       py-4
       px-5
+      footer
       ${location.pathname === "/login" && "fixed-bottom"}`}
       style={{
         boxShadow: '0px -4px 2px -2px #bababa'
