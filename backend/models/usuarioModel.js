@@ -57,8 +57,9 @@ Usuario.crear = async (usuario) => {
         fecha_nac, 
         email, 
         contrasena, 
-        telefono
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+        telefono,
+        id_sexo
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
     values: [
       usuario.nombre,
       usuario.paterno,
@@ -66,7 +67,8 @@ Usuario.crear = async (usuario) => {
       usuario.fecha_nac,
       usuario.email,
       passwd,
-      usuario.telefono
+      usuario.telefono,
+      usuario.id_sexo
     ]
   };
 

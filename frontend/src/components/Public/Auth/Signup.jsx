@@ -10,6 +10,12 @@ import { Link } from 'react-router-dom';
 import { useGlobalContext } from '../../../App';
 import DangerAlert from '../../DangerAlert';
 
+const sexs = {
+  'No binario': 1,
+  'Femenino': 2,
+  'Masculino': 3
+};
+
 const Signup = () => {
   const {
     error, 
@@ -32,6 +38,10 @@ const Signup = () => {
     for(const [key, value] of Object.entries(formObj)) {
       formObj[key] = value.trim();
     }
+
+    formObj.id_sexo = sexs[formObj.id_sexo];
+
+    console.log(formObj);
     
     if(!sent) {
       axios({
@@ -119,6 +129,18 @@ const Signup = () => {
                   Telefono
                 </Form.Label>
                 <Form.Control type='number' name='telefono' maxLength='10' placeholder='10 Digitos'></Form.Control>
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group className='mb-3' controlId='sexoField'>
+                <Form.Label>
+                  Sexo
+                </Form.Label>
+                <Form.Select name='id_sexo'>
+                  {Object.keys(sexs).map(sex => (
+                    <option key={sex}>{sex}</option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>
