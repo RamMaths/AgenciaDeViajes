@@ -6,33 +6,22 @@ import { Container } from 'react-bootstrap';
 import { Form, Row, Col, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-//React components
-import { createContext, useContext, useState } from 'react';
-
 //my components
 import { useGlobalContext } from '../../../App';
 import DangerAlert from '../../DangerAlert';
 
-import { useNavigate } from 'react-router-dom';
-
 const Signup = () => {
-  const [form, setForm] = useState({
-    nombre: '',
-    paterno: '',
-    materno: '',
-    fecha_nac: '',
-    email: '',
-    contrasena: '',
-    telefono: ''
-  });
-
-  const { error, setError } = useGlobalContext();
-
-  const navigate = useNavigate();
+  const {
+    error, 
+    setError,
+    serverError,
+    setServerError
+  } = useGlobalContext(false);
 
   let sent = false;
 
   const handleSubmit = (e) => {
+
     e.preventDefault();
     //cleaning the inputs
     setError({...error, show: false});
@@ -52,7 +41,12 @@ const Signup = () => {
       }).then(res => {
         window.location.replace('/login');
       }, err => {
-        console.error(err);
+
+        if(`${err.response.status}`.startsWith('5')) {
+          setServerError(true);
+          return;
+        }
+
         setError({
           show: true,
           message: err.response.data.message
@@ -62,6 +56,8 @@ const Signup = () => {
 
     sent = true;
   };
+
+  if(serverError) return Error('Error interno del servidor');
 
   return (
     <Container className='mt-5 mb-5'>

@@ -24,7 +24,7 @@ const NavBar = () => {
 
   return (
     <HomeNavContext.Provider value={{ showMenu, setShowMenu }}>
-      <Navbar className='navbar bg-body-tertiary' expand='lg' style={{boxShadow: '0 4px 2px -2px #bababa'}}>
+      <Navbar className='navbar bg-body-tertiary' expand='lg' style={{boxShadow: '0px 4px 10px -2px #bababa'}}>
         <div className='d-flex justify-content-between align-items-center w-100'>
           <div className='d-flex justify-content-center align-items-center align-middle text-center'>
             <Button className='m-3 ms-md-5 bg-light border-light' onClick={() => setShowMenu(true)}>
