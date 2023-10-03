@@ -2,6 +2,10 @@
   max-width: 18rem;
 }
 
+.carousel-img {
+  max-height: 15rem;
+}
+
 @media screen and (min-width: 1250px) {
   .carousel {
     max-width: 60rem;
@@ -15,5 +19,9 @@
 
   .own-card-title {
     size: 1rem;
+  }
+
+  .carousel-img {
+    max-height: 10rem;
   }
 }
