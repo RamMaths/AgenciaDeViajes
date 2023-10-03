@@ -86,7 +86,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
     fecha_nac: req.body.fecha_nac,
     email: req.body.email,
     contrasena: req.body.contrasena,
-    telefono: req.body.telefono
+    telefono: req.body.telefono,
   });
 
   if(error) return next(error);
@@ -99,7 +99,8 @@ exports.signUp = catchAsync(async (req, res, next) => {
     fecha_nac: req.body.fecha_nac,
     email: req.body.email,
     contrasena: req.body.contrasena,
-    telefono: req.body.telefono
+    telefono: req.body.telefono,
+    id_sexo: req.body.id_sexo
   });
 
   //executing the query on the database
@@ -133,10 +134,10 @@ exports.login = catchAsync(async (req, res, next) => {
   client.release();
 
   //If we didn't find the user we throw an error
-  if(!usuario?.id_usuario) return next(new AppError('El usuario o la contraseña son incorrectos'), 401);
+  if(!usuario?.id_usuario) return next(new AppError('El correo o la contraseña son incorrectos'), 401);
 
   //Validating (comparing) the password
-  if(! await Usuario.comparaContrasena(reqContra, usuario.contrasena)) return next(new AppError('El usuario o la contraseña son incorrectos', 401));
+  if(! await Usuario.comparaContrasena(reqContra, usuario.contrasena)) return next(new AppError('El correo o la contraseña son incorrectos', 401));
 
   //sending the token after each validation step
   const token = signToken(usuario.id_usuario);

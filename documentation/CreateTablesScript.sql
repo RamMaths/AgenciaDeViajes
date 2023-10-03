@@ -46,6 +46,12 @@ CREATE TABLE Roles (
   CONSTRAINT pk_id_rol PRIMARY KEY (id_rol)
 );
 
+CREATE TABLE Sexos (
+  id_sexo SERIAL,
+  nombre VARCHAR(50),
+  CONSTRAINT pk_id_sexo PRIMARY KEY(id_sexo)
+);
+
 CREATE TABLE Usuarios (
   --primary key
   id_usuario SERIAL,
@@ -60,9 +66,11 @@ CREATE TABLE Usuarios (
   telefono VARCHAR(10),
   --foreign keys
   id_rol INTEGER DEFAULT 1,
+  id_sexo INTEGER,
   --Constraints
   CONSTRAINT pk_id_usuario PRIMARY KEY (id_usuario),
-  CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES Roles(id_rol)
+  CONSTRAINT fk_id_rol FOREIGN KEY (id_rol) REFERENCES Roles(id_rol),
+  CONSTRAINT fk_id_sexo FOREIGN KEY (id_sexo) REFERENCES Sexos(id_sexo)
 );
 
 CREATE TABLE Empresas (
@@ -177,7 +185,9 @@ CREATE TABLE Acompanantes (
   fecha_nac DATE,
   --Foreign keys
   id_viaje INTEGER,
+  id_sexo INTEGER,
   --Constraints
   CONSTRAINT pk_id_acompanante PRIMARY KEY (id_acompanante),
-  CONSTRAINT fk_id_viaje FOREIGN KEY (id_viaje) REFERENCES Viajes(id_viaje) ON DELETE CASCADE
+  CONSTRAINT fk_id_viaje FOREIGN KEY (id_viaje) REFERENCES Viajes(id_viaje) ON DELETE CASCADE,
+  CONSTRAINT fk_id_sexo FOREIGN KEY (id_sexo) REFERENCES Sexos(id_sexo)
 );
