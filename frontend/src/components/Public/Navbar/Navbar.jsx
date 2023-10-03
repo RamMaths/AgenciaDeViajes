@@ -12,7 +12,7 @@ import {
 
 const NavBar = () => {
   return (
-    <Navbar className='navbar bg-body-tertiary w-100' expand='lg' style={{boxShadow: '0 4px 2px -2px #bababa'}}>
+    <Navbar className='navbar bg-body-tertiary w-100' expand='lg' style={{boxShadow: '0 4px 8px -2px #bababa'}}>
       <Container>
         <Navbar.Brand href='/'>Agencia De Viajes</Navbar.Brand>
         <Navbar.Toggle aria-controls='basic-navbar-nav' />

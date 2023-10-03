@@ -29,6 +29,23 @@ const sendToken = (token, statusCode, res, usuario) => {
   });
 }
 
+const validateSignupFields = (fields) => {
+  if(
+    !fields.nombre ||
+    !fields.paterno ||
+    !fields.fecha_nac ||
+    !fields.email ||
+    !fields.contrasena ||
+    !fields.telefono
+  ) return new AppError('Debes ingresar todos los campos mencionados', 400);
+
+  if (fields.nombre.length > 50) return new AppError('El nombre debe contener menos de 50 caracteres', 400);
+  if (fields.paterno.length > 50) return new AppError('El apellido paterno debe contener menos de 50 caracteres', 400);
+  if (fields.materno.length > 50) return new AppError('El apellido materno debe contener menos de 50 caracteres', 400);
+  if (fields.contrasena.length > 100) return new AppError('La contaseña debe contener menos de 100 caracteres', 400);
+  if (fields.telefono.length > 10) return new AppError('El telefono no debe exceder los 10 dígitos', 400);
+};
+
 exports.protect = catchAsync(async (req, res, next) => {
   let token = null;
 
@@ -61,17 +78,20 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 exports.signUp = catchAsync(async (req, res, next) => {
+  //This function validates the fields
+  const error = validateSignupFields({
+    nombre: req.body.nombre,
+    paterno: req.body.paterno,
+    materno: req.body.materno,
+    fecha_nac: req.body.fecha_nac,
+    email: req.body.email,
+    contrasena: req.body.contrasena,
+    telefono: req.body.telefono
+  });
 
-  if(
-    !req.body.nombre ||
-    !req.body.paterno ||
-    !req.body.fecha_nac ||
-    !req.body.email ||
-    !req.body.contrasena ||
-    !req.body.telefono
-  ) return next(new AppError('Debes ingresar todos los campos mencionados', 400));
+  if(error) return next(error);
 
-  //creamos al usuario en la base de datos
+  //retreiving the query from the user model
   const query = await Usuario.crear({
     nombre: req.body.nombre,
     paterno: req.body.paterno,
@@ -82,6 +102,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
     telefono: req.body.telefono
   });
 
+  //executing the query on the database
   const client = await pool.connect();
   const qRes = await pool.query(query);
   const usuario = { ...qRes.rows[0] };
@@ -90,16 +111,17 @@ exports.signUp = catchAsync(async (req, res, next) => {
   const token = signToken(id);
   client.release();
 
+  //sending the token to the client
   sendToken(token, 200, res, usuario);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, contrasena: reqContra } = req.body;
 
-  //si no hay nada en la petición mandamos un error
+  //if there's anything in the request we throw an error
   if(!email || !reqContra) return next(new AppError('Debes proporcionar un usuario y una contraseña', 400));
 
-  //buscamos el usuario en la base de datos
+  //We look for the user on the database
   const query = Usuario.buscar({
     email
   }, [
@@ -110,13 +132,13 @@ exports.login = catchAsync(async (req, res, next) => {
   const usuario = qRes.rows[0];
   client.release();
 
-  //si no encontramos el usuario en la base de datos mandamos un error
+  //If we didn't find the user we throw an error
   if(!usuario?.id_usuario) return next(new AppError('El usuario o la contraseña son incorrectos'), 401);
 
-  //validamos la contraseña
+  //Validating (comparing) the password
   if(! await Usuario.comparaContrasena(reqContra, usuario.contrasena)) return next(new AppError('El usuario o la contraseña son incorrectos', 401));
 
-  //si pasó los filtros enviamos el token de inicio de sesión
+  //sending the token after each validation step
   const token = signToken(usuario.id_usuario);
   delete usuario.contrasena;
   sendToken(token, 200, res, usuario);

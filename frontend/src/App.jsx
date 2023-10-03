@@ -24,6 +24,7 @@ const App = () => {
     show: false,
     message: ''
   });
+  const [serverError, setServerError] = useState(false);
   const [user, setUser] = useState(false);
 
   //router
@@ -35,11 +36,13 @@ const App = () => {
       children: [
         {
           path: "/login/",
-          element: <Login/>
+          element: <Login/>,
+          errorElement: <ErrorPage/>,
         },
         {
           path: "/signup",
-          element: <Signup/>
+          element: <Signup/>,
+          errorElement: <ErrorPage/>
         }
       ]
     },
@@ -51,7 +54,14 @@ const App = () => {
   ]);
 
   return (
-    <GlobalContext.Provider value={{error, setError, user, setUser}}>
+    <GlobalContext.Provider value={{
+      error,
+      setError,
+      user,
+      setUser,
+      serverError,
+      setServerError
+    }}>
       <RouterProvider router={router}>
       </RouterProvider>
     </GlobalContext.Provider>
