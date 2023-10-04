@@ -1,6 +1,8 @@
 const AppError = require('../utils/appError');
 
 const handleRepetition = () => new AppError('Ya tenemos una cuenta registrada con ese email', 400);
+const handleMalformedJWT = () => new AppError('Usaste un Json Web Token mal formado.', 401);
+const handleJWTExpiredError = () => new AppError('Tu sesión ha expirado. Por favor inicia sesión de nuevo', 401);
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -39,7 +41,13 @@ module.exports = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else if(process.env.NODE_ENV === 'production') {
     let error = Object.assign(err);
+
+    console.log(error.name);
+
     if(error.constraint === 'usuarios_email_key') error = handleRepetition();
+    if(error.name === 'JsonWebTokenError') error = handleMalformedJWT();
+    if(error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+
     sendErrorProd(error, res);
   }
   

@@ -15,7 +15,7 @@ const Home = () => {
 
   return (
     <Container className='text-secondary'>
-      <h1 className='mt-5'>Bienvenido, {user.nombre}</h1>
+      <h1 className='mt-5'>Hola, {user.nombre}</h1>
       <p className='mb-0'>Tus viajes agendados son: </p>
       <div className='d-flex flex-column justify-content-center align-items-center'>
         <div className='d-flex justify-content-end align-items-center w-100 m-3'>
