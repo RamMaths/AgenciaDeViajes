@@ -26,7 +26,7 @@ const Content = () => {
           <Carousel className='w-100 shadow-sm'>
             {infoCountries[0].cities.map(city => (
               <Carousel.Item className='mt-2' key={city.name}>
-                <img className='d-block w-100 carousel-img' src={city.image} style={{maxHeight: '15rem'}}></img>
+                <img className='d-block w-100 carousel-img' src={city.image}></img>
                 <Carousel.Caption>
                   <h3>{city.name}</h3>
                   <p></p>
@@ -75,7 +75,7 @@ const Content = () => {
           <Carousel className='w-100 shadow-sm'>
             {infoCountries[1].cities.map(city => (
               <Carousel.Item className='mt-2' key={city.name}>
-                <img className='d-block w-100 carousel-img' src={city.image} style={{maxHeight: '15rem'}}></img>
+                <img className='d-block w-100 carousel-img' src={city.image}></img>
                 <Carousel.Caption>
                   <h3>{city.name}</h3>
                   <p>{infoCountries[1].name}</p>

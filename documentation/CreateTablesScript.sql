@@ -5,6 +5,7 @@ CREATE TABLE Paises (
   nombre VARCHAR(50) NOT NULL,
   latitud INTEGER NOT NULL,
   longitud INTEGER NOT NULL,
+  zoom INTEGER,
   --Constraints
   CONSTRAINT pk_id_pais PRIMARY KEY (id_pais)
 );
@@ -14,8 +15,6 @@ CREATE TABLE Estados (
   id_estado SERIAL,
   --Other attributes
   nombre VARCHAR(50) NOT NULL,
-  latitud INTEGER NOT NULL,
-  longitud INTEGER NOT NULL,
   --Foreign keys
   id_pais INTEGER,
   --Constraints

@@ -1,4 +1,22 @@
-MX,[19.42847, -99.12766]
-US,[39.12, -94.74]
-COL,[4.570868, -74.297333]
+Mexico,19.42847,-99.12766,4
+Estados Unidos,39.12,-94.74,3
+Colombia,4.570868,-74.297333,5
+Canadá,56.0,-96.0,3
+Brasil,-55,-10,4
+Corea Del Sur,35.907757,127.766922,7
+Japón,36.204824,138.252924,5
 
+--estados
+
+Ciudad de México,1
+Quintana Roo,1
+Yucatán,1
+Jalisco,1
+
+--ciudades
+
+Ciudad de México,19.42847,-99.12766,1
+Cancún,21.17429,-86.84656,2
+Mérida,20.97537,-89.61696,3
+Guadalajara,20.66682,-103.39182,4
+Puerto Vallarta,20.617,-105.23018,4

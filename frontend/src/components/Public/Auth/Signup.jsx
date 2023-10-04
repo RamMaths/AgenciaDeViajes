@@ -16,6 +16,8 @@ const sexs = {
   'Masculino': 3
 };
 
+console.log(import.meta.env.VITE_HOST);
+
 const Signup = () => {
   const {
     error, 
@@ -46,7 +48,7 @@ const Signup = () => {
     if(!sent) {
       axios({
         method: 'post',
-        url: 'http://localhost:3000/api/clientes/signup',
+        url: `http://${import.meta.env.VITE_HOST}:3000/api/clientes/signup`,
         data: formObj
       }).then(res => {
         window.location.replace('/login');
