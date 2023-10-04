@@ -4,7 +4,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const pool = require('../utils/dbConnection.js');
-const Usuario = require('../models/usuarioModel');
+const UserModel = require('../models/UserModel');
 
 const signToken = (id) => {
   return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -49,33 +49,44 @@ const validateSignupFields = (fields) => {
 exports.protect = catchAsync(async (req, res, next) => {
   let token = null;
 
-  //validando que la petición contenga el token
+  //validating if the request has the token
   if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
   if(!token) next(new AppError('No has iniciado sesión', 401));
 
-  //verificamos el token
-  //para no bloquear el hilo de ejcución lo hacemos promesa
+  //Here we verify the token
+  //In order to prevent the thread to be blocked I promosify this method
   const tokenDecodificado = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  //buscamos el usuario en la base de datos
+  //we look for the user on the database
   const client = await pool.connect();
-  const qRes = await pool.query(Usuario.buscar(tokenDecodificado.id, [
+  const qRes = await client.query(UserModel.findOne({id_usuario: tokenDecodificado.id}, [
     '*'
   ]));
   const usuario = qRes.rows[0];
   client.release();
+  delete usuario.contrasena;
 
-  //validando si el usuario existe
+  //validating if the user exists
   if(!usuario.id_usuario) return next(new AppError('El usuario ya no existe'), 401);
 
-  //validando las fecha de creación del token y la de ahora
-  if(!Usuario.seCambioContrasena(usuario.fecha_cambio_contra, tokenDecodificado.iat)) return next(new AppError('El usuario cambió la contraseña recientemente. Por favor inicia sesión nuevamente'));
+  //validating the creation date of the token
+  if(UserModel.isPasswordChanged(usuario.fecha_cambio_contra, tokenDecodificado.iat)) return next(new AppError('El usuario cambió la contraseña recientemente. Por favor inicia sesión nuevamente'));
 
-  //damos acceso
-  req.usuario = usuario;
+  //we return the user if they passed the filters
+  console.log('berfore sending the user');
+  req.user = usuario;
+  next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    console.log(req.user);
+    if(!roles.includes(req.user.id_rol)) return next(new AppError('No estás autorizado para usar esta funcionalidad', 403));
+    next();
+  };
+};
 
 exports.signUp = catchAsync(async (req, res, next) => {
   //This function validates the fields
@@ -92,7 +103,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
   if(error) return next(error);
 
   //retreiving the query from the user model
-  const query = await Usuario.crear({
+  const query = await UserModel.create({
     nombre: req.body.nombre,
     paterno: req.body.paterno,
     materno: req.body.materno,
@@ -105,7 +116,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
   //executing the query on the database
   const client = await pool.connect();
-  const qRes = await pool.query(query);
+  const qRes = await client.query(query);
   const usuario = { ...qRes.rows[0] };
   delete usuario.contrasena;
   const id = usuario.id_usuario;
@@ -123,13 +134,13 @@ exports.login = catchAsync(async (req, res, next) => {
   if(!email || !reqContra) return next(new AppError('Debes proporcionar un usuario y una contraseña', 400));
 
   //We look for the user on the database
-  const query = Usuario.buscar({
+  const query = UserModel.findOne({
     email
   }, [
     '*'
   ]);
   const client = await pool.connect();
-  const qRes = await pool.query(query);
+  const qRes = await client.query(query);
   const usuario = qRes.rows[0];
   client.release();
 
@@ -137,7 +148,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if(!usuario?.id_usuario) return next(new AppError('El correo o la contraseña son incorrectos'), 401);
 
   //Validating (comparing) the password
-  if(! await Usuario.comparaContrasena(reqContra, usuario.contrasena)) return next(new AppError('El correo o la contraseña son incorrectos', 401));
+  if(! await UserModel.comparePasswd(reqContra, usuario.contrasena)) return next(new AppError('El correo o la contraseña son incorrectos', 401));
 
   //sending the token after each validation step
   const token = signToken(usuario.id_usuario);

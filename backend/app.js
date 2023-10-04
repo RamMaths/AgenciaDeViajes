@@ -7,22 +7,26 @@ const rateLimit = require('express-rate-limit');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
-//routers
-const usuarioRouter = require('./routes/usuarioRouter');
+//express
+const app = express();
+app.use(express.json());
+app.use(cors());
 
+//rate limiting
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
   message: 'Ups! han ocurrido muchas peticiones desde esta IP intenta de nuevo en una hora'
 });
+app.use('/api', limiter)
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+//routers
+const userRouter = require('./routes/userRouter');
+const cityRouter = require('./routes/cityRouter');
 
 //mounting routes
-app.use('/api', limiter)
-app.use('/api/clientes', usuarioRouter);
+app.use('/api/clientes', userRouter);
+app.use('/api/ciudades', cityRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`No se puede encontrar la ruta`, 404));
