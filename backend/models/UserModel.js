@@ -1,9 +1,10 @@
+const pool = require('../utils/dbConnection');
 const bcrypt = require('bcrypt');
 const Model = require('../utils/Model');
 
 class UserModel extends Model {
-  constructor(table) {
-    super(table);
+  constructor(table, pool) {
+    super(table, pool);
   }
 
   async create(user) {
@@ -32,7 +33,7 @@ class UserModel extends Model {
       ]
     };
 
-    return query;
+    return await this._execute(query);
   }
 
   //utils 
@@ -59,6 +60,6 @@ class UserModel extends Model {
 
 }
 
-const user = new UserModel('Usuarios');
+const user = new UserModel('Usuarios', pool);
 
 module.exports = user;

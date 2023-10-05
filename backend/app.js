@@ -22,11 +22,11 @@ app.use('/api', limiter)
 
 //routers
 const userRouter = require('./routes/userRouter');
-const cityRouter = require('./routes/cityRouter');
+const locationRouter = require('./routes/locationRouter');
 
 //mounting routes
-app.use('/api/clientes', userRouter);
-app.use('/api/ciudades', cityRouter);
+app.use('/api/users', userRouter);
+app.use('/api/locations', locationRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`No se puede encontrar la ruta`, 404));
