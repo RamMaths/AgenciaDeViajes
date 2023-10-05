@@ -42,8 +42,6 @@ module.exports = (err, req, res, next) => {
   } else if(process.env.NODE_ENV === 'production') {
     let error = Object.assign(err);
 
-    console.log(error.name);
-
     if(error.constraint === 'usuarios_email_key') error = handleRepetition();
     if(error.name === 'JsonWebTokenError') error = handleMalformedJWT();
     if(error.name === 'TokenExpiredError') error = handleJWTExpiredError();

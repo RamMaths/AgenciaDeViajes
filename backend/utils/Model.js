@@ -1,47 +1,55 @@
 class Model {
-  constructor(table) {
+  constructor(table, pool) {
     this.table = table;
+    this.pool = pool;
   }
 
-  find(fields = null, filters = null) {
+  async _execute(query) {
+    const client = await this.pool.connect();
+    const qRes = await client.query(query)
+    const results = qRes.rows;
+    client.release();
+
+    return results;
+  }
+
+  async find(fields = null, filters = null) {
+    let query = '';
+
     if(!fields && !filters) {
-      return `
+      query = `
       SELECT * 
       FROM ${this.table}
     `;
-    }
-
-    if(!filters) {
-      const query = {
+    } else if(!filters) {
+      query = {
         text: `
         SELECT ${Object.keys(fields).join(', ')}
         FROM ${this.table}
         `,
         values: Object.values(fields)
       };
+    } else {
+      const conditions = [];
 
-      return query;
-    }
+      for(const [key, value] of Object.entries(filters)) {
+        conditions.push(`${key}=${value}`);
+      }
 
-    const conditions = [];
-
-    for(const [key, value] of Object.entries(filters)) {
-      conditions.push(`${key}=${value}`);
-    }
-
-    const query = {
-      text: `
+      query = {
+        text: `
         SELECT ${Object.keys(fields).join(', ')}
         FROM ${this.table}
         WHERE ${conditions.join(' AND ')}
       `,
       values: Object.values(fields)
-    };
+      };
+    }
 
-    return query;
+    return await this._execute(query);
   }
 
-  findOne(identifier, data) {
+  async findOne(identifier, data) {
     const query = {
       text: `
         SELECT ${data.join(', ')} 
@@ -50,24 +58,26 @@ class Model {
       `,
       values: [Object.values(identifier)[0]]
     };
-
-    return query;
+    
+    return await this._execute(query);
   }
 
-  create(obj) {
+  async create(obj) {
     const query = {
       text: `
         INSERT INTO ${this.table} (
           ${Object.keys(obj).join(', ')}
-        ) VALUES (${Object.keys(obj).map((_, i) => `$${i + 1}`)})
+        ) 
+        VALUES (${Object.keys(obj).map((_, i) => `$${i + 1}`)})
+        RETURNING *
       `,
       values: Object.values(obj)
     }
 
-    return query;
+    return await this._execute(query);
   };
 
-  update(identifier, data) {
+  async update(identifier, data) {
     let lastItemPosition = 0;
 
     const values = Object.keys(data).map(
@@ -86,7 +96,7 @@ class Model {
       values: [...Object.values(data), Object.values(identifier)[0]]
     }
 
-    return query;
+    return await this._execute(query);
   }
 }
 
