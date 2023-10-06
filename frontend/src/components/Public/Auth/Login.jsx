@@ -37,7 +37,7 @@ const Login = () => {
       if(!sent) {
         axios({
           method: 'post',
-          url: `http://${import.meta.env.VITE_HOST}:3000/api/clientes/login`,
+          url: `http://${import.meta.env.VITE_HOST}:3000/api/users/login`,
           data: newForm
         }).then(res => {
           setUser(res.data.data);

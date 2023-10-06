@@ -48,7 +48,7 @@ const Signup = () => {
     if(!sent) {
       axios({
         method: 'post',
-        url: `http://${import.meta.env.VITE_HOST}:3000/api/clientes/signup`,
+        url: `http://${import.meta.env.VITE_HOST}:3000/api/users/signup`,
         data: formObj
       }).then(res => {
         window.location.replace('/login');

@@ -4,15 +4,6 @@ class Model {
     this.pool = pool;
   }
 
-  async _execute(query) {
-    const client = await this.pool.connect();
-    const qRes = await client.query(query)
-    const results = qRes.rows;
-    client.release();
-
-    return results;
-  }
-
   async find(fields = null, filters = null) {
     let query = '';
 
@@ -97,6 +88,17 @@ class Model {
     }
 
     return await this._execute(query);
+  }
+
+  //private methods
+
+  async _execute(query) {
+    const client = await this.pool.connect();
+    const qRes = await client.query(query)
+    const results = qRes.rows;
+    client.release();
+
+    return results;
   }
 }
 

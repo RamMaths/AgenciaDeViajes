@@ -1,19 +1,25 @@
 //router components
-import { Outlet } from 'react-router-dom';
+import { 
+  Outlet,
+  useLocation
+} from 'react-router-dom';
 
 //my components
 import NavBar from './Navbar/Navbar';
 import Home from './Home';
-import Navbar from './Footer/Footer';
+import Footer from './Footer/Footer';
+
 
 const HomeRoot = () => {
+
+  const location = useLocation();
 
   return (
     <>
       <NavBar/>
-      { window.location.pathname === '/home' && <Home/> }
+      { location.pathname === '/home' && <Home/> }
       <Outlet/>
-      <Navbar/>
+      <Footer/>
     </>
   );
 };

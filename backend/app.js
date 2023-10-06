@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 
 //utils
 const AppError = require('./utils/appError');
@@ -11,6 +12,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 //rate limiting
 const limiter = rateLimit({
