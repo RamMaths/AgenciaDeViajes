@@ -1,5 +1,6 @@
 //modules
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 //bootstrap components
 import { Container } from 'react-bootstrap';
@@ -41,6 +42,7 @@ const Login = () => {
           data: newForm
         }).then(res => {
           setUser(res.data.data);
+          Cookies.set('jwt', res.data.token);
         }, err => {
           console.error(err);
           setError({

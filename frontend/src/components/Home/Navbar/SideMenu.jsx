@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 //bootstrap components
 import {
   Offcanvas,
@@ -34,6 +36,7 @@ const SideMenu = () => {
 
   const handleLogOut = () => {
     setUser(null);
+    Cookies.remove('jwt');
   };
 
   return (

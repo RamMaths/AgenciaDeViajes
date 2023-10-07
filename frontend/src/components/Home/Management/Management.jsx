@@ -18,26 +18,28 @@ const tableFormats = {
   ]
 };
 
-const fetchTable = async (table) => {
-  console.log(Cookies);
-  const data = await fetch(`http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`);
-  console.log(data);
-  // axios({
-  //   method: 'get',
-  //   url: `${table[0]}`
-  // }).then(res => {
-  //   console.log(res);
-  // }, err => {
-  //   console.log(err);
-  // });
-};
-
 const Management = () => {
   const [tableName, setTableName] = useState('Ninguna');
   const [tableData, setTableData] = useState(null);
 
   const handleTableChange = (e) => {
     setTableName(e.target.value);
+    fetchTable(e.target.value);
+  };
+
+  const fetchTable = async (table) => {
+    if(table == 'Ninguna') return;
+    axios({
+      method: 'get',
+      url: `${tableFormats[table][0]}`,
+      headers: {
+        'Authorization': `Bearer ${Cookies.get('jwt')}`
+      }
+    }).then(res => {
+      setTableData(res.data.data);
+    }, err => {
+      console.log(err);
+    });
   };
 
   return (
@@ -54,26 +56,29 @@ const Management = () => {
           </Form.Select>
         </Form.Group>
       </Form>
-      { /*tableName != 'Ninguna' && <Result tableFormat={tableFormats[tableData]}/>*/ }
-      <Button onClick={() => fetchTable(tableFormats['Paises'])}>Here</Button>
+      { tableName != 'Ninguna' && tableData && <Result table={tableData}/> }
     </div>
   );
 };
 
-const Result = ({tableFormat}) => {
-  console.log(tableFormat);
+const Result = ({table}) => {
   return (
     <Table className='shadow-sm m-3' responsive striped bordered hover>
       <thead>
         <tr>
-          {tableFormat.map(field => (
-            <th key={field}>{field}</th>
-          ))}
+          {table && Object.keys(table[0]).map(field => {
+            return <th key={field}>{field}</th>
+          })}
         </tr>
       </thead>
       <tbody>
-        <tr>
-        </tr>
+        {table && table.map((row, i) => (
+          <tr key={i}>
+            {Object.values(row).map(value => (
+              <td key={value}>{value}</td>
+            ))}
+          </tr>
+        ))}
       </tbody>
     </Table>
   );
