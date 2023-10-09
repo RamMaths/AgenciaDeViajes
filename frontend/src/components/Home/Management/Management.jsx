@@ -2,21 +2,34 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 //react components
-import { useState } from 'react';
+import { 
+  useEffect,
+  useState,
+  useContext,
+  createContext
+} from 'react';
 
 // bootstrap components
 import { 
   Table,
   Form,
-  Button
+  Button,
+  Container,
+  Row,
+  Col,
+  Modal
 } from 'react-bootstrap';
 
-const tableFormats = {
+const tableLinks = {
   'Ninguna': null,
   'Paises': [
-    `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`
   ]
 };
+
+const ManagementContext = createContext();
+export const useManagementContext = () => useContext(ManagementContext);
 
 const Management = () => {
   const [tableName, setTableName] = useState('Ninguna');
@@ -24,63 +37,154 @@ const Management = () => {
 
   const handleTableChange = (e) => {
     setTableName(e.target.value);
-    fetchTable(e.target.value);
+    if(e.target.value == 'Ninguna') return;
+    fetchInfo(tableLinks[e.target.value][0], setTableData);
   };
 
-  const fetchTable = async (table) => {
-    if(table == 'Ninguna') return;
+  const fetchInfo = async (link, hook) => {
     axios({
       method: 'get',
-      url: `${tableFormats[table][0]}`,
+      url: link,
       headers: {
         'Authorization': `Bearer ${Cookies.get('jwt')}`
       }
     }).then(res => {
-      setTableData(res.data.data);
+      hook(res.data.data);
     }, err => {
       console.log(err);
     });
   };
 
   return (
-    <div>
-      <Form className='m-3'>
-        <Form.Group className='mb-3' controlId='tableField'>
-          <Form.Label>
-            Tabla
-          </Form.Label>
-          <Form.Select name='tabla' onChange={handleTableChange}>
-            { Object.keys(tableFormats).map(table => (
-              <option key={table}>{table}</option>
-            ))}
-          </Form.Select>
-        </Form.Group>
-      </Form>
-      { tableName != 'Ninguna' && tableData && <Result table={tableData}/> }
+    <ManagementContext.Provider value={{
+      handleTableChange,
+      tableLinks, 
+      tableName, 
+      setTableName, 
+      tableData, 
+      setTableData,
+      fetchInfo
+    }}>
+      <Container>
+        <MiniForm/>
+        { tableName != 'Ninguna' && tableData && <Result table={tableData}/> }
+      </Container>
+    </ManagementContext.Provider>
+  );
+};
+
+const AgregarModal = ({showAgregar, setShowAgregar}) => {
+  const handleClose = () => {
+    setShowAgregar(false);
+  }
+
+  const {
+    tableLinks, 
+    tableName, 
+    fetchInfo
+  } = useManagementContext();
+
+  const [tableDataTypes, setTableDataTypes] = useState(null);
+  
+
+  useEffect(() => { 
+    if(tableLinks && tableName && showAgregar) {
+      fetchInfo(tableLinks[tableName][1], setTableDataTypes);
+    }
+  }, [showAgregar]);
+
+  console.log(tableDataTypes);
+
+  return (
+    <Modal show={showAgregar} onHide={handleClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Agrega registros</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleClose}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+    </Modal>
+  );
+};
+
+const MiniForm = () => {
+  const {
+    handleTableChange,
+    tableLinks,
+    tableName,
+    tableData
+  } = useManagementContext();
+
+  const [showAgregar, setShowAgregar] = useState(false);
+
+  const handleShowAgregar = () => {
+    setShowAgregar(true);
+  };
+
+  return (
+    <div className='mt-3'>
+      <AgregarModal showAgregar={showAgregar} setShowAgregar={setShowAgregar}/>
+      <Row>
+        <Col>
+          <Form className=''>
+            <Form.Group className='' controlId='tableField'>
+              <Form.Label>
+                Tabla
+              </Form.Label>
+              <Form.Select name='tabla' onChange={handleTableChange}>
+                { Object.keys(tableLinks).map(table => (
+                  <option key={table}>{table}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Form>
+        </Col>
+      </Row>
+      { tableName != 'Ninguna' && tableData && (
+      <Row>
+        <Col>
+          <div className='d-flex justify-content-start my-3'>
+            <Button onClick={handleShowAgregar}><i className='bi bi-file-earmark-plus fs-5 me-2'></i>Agregar</Button>
+            <Button className='btn-secondary ms-3'><i className='bi bi-pencil-square fs-5 me-2'></i>Editar</Button>
+            <Button className='btn-danger ms-3'><i className='bi bi-file-earmark-x  fs-5 me-2'></i>Eliminar</Button>
+          </div>
+        </Col>
+      </Row>
+      )}
     </div>
   );
 };
 
 const Result = ({table}) => {
+
   return (
-    <Table className='shadow-sm m-3' responsive striped bordered hover>
-      <thead>
-        <tr>
-          {table && Object.keys(table[0]).map(field => {
-            return <th key={field}>{field}</th>
-          })}
-        </tr>
-      </thead>
-      <tbody>
-        {table && table.map((row, i) => (
-          <tr key={i}>
-            {Object.values(row).map(value => (
-              <td key={value}>{value}</td>
-            ))}
+    <Container>
+      <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
+        <thead>
+          <tr>
+            {table && Object.keys(table[0]).map(field => {
+              return <th key={field}>{field}</th>
+            })}
           </tr>
-        ))}
-      </tbody>
-    </Table>
+        </thead>
+        <tbody>
+          {table && table.map((row, i) => (
+            <tr key={i}>
+              {Object.values(row).map(value => (
+                <td key={value}>{value}</td>
+              ))}
+              <td>hello</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </Container>
   );
 };
 

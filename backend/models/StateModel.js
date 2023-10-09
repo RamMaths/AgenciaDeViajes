@@ -7,5 +7,5 @@ class StateModel extends Model {
   }
 }
 
-const state = new StateModel('Estados', pool);
+const state = new StateModel('estados', pool);
 module.exports = state;

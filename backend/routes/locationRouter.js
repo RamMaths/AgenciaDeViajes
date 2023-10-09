@@ -43,4 +43,12 @@ locationRouter
     locationController.createCountry
   );
 
+locationRouter
+  .route('/countries/datatypes')
+  .get(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.getCountriesDataTypes
+  );
+
 module.exports = locationRouter;

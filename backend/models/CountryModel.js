@@ -7,5 +7,5 @@ class CountryModel extends Model {
   }
 }
 
-const country = new CountryModel('Paises', pool);
+const country = new CountryModel('paises', pool);
 module.exports = country;

@@ -4,6 +4,15 @@ class Model {
     this.pool = pool;
   }
 
+  async dataTypes() {
+    const query = `
+      SELECT column_name, data_type FROM information_schema.columns
+      WHERE table_name='${this.table}';
+    `;
+
+    return await this._execute(query);
+  }
+
   async find(fields = null, filters = null) {
     let query = '';
 

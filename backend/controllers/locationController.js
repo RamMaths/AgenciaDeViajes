@@ -78,6 +78,15 @@ exports.createCountry = catchAsync(async(req, res, next) => {
   );
 });
 
+exports.getCountriesDataTypes = catchAsync(async(req, res, next) => {
+  const result = await CountryModel.dataTypes();
+
+  res.status(200).json({
+    status: 'success',
+    data: result
+  })
+});
+
 //general
 const getAll = async (Model, res) => {
   const result = await Model.find();
