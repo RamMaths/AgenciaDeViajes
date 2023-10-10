@@ -1,5 +1,4 @@
 const AppError = require('../utils/appError');
-const pool = require('../utils/dbConnection');
 const catchAsync = require('../utils/catchAsync');
 const CityModel = require('../models/CityModel');
 const StateModel = require('../models/StateModel');
