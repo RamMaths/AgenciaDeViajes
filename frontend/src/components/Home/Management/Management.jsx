@@ -81,26 +81,53 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
   const {
     tableLinks, 
     tableName, 
-    fetchInfo
+    fetchInfo,
+    tableData
   } = useManagementContext();
 
   const [tableDataTypes, setTableDataTypes] = useState(null);
-  
+
+  let search = true;
 
   useEffect(() => { 
-    if(tableLinks && tableName && showAgregar) {
+    if(tableLinks && tableName && showAgregar && search) {
       fetchInfo(tableLinks[tableName][1], setTableDataTypes);
+      search = false;
     }
   }, [showAgregar]);
 
-  console.log(tableDataTypes);
+
+  const fieldTypes = {
+    'integer': 'number',
+    'numeric':  'number',
+    'character varying': 'text',
+    'date': 'date',
+  };
 
   return (
     <Modal show={showAgregar} onHide={handleClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>Agrega registros</Modal.Title>
       </Modal.Header>
-      <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+      <Modal.Body>
+        {tableDataTypes && 
+        <Form>
+          <Form.Group className='m-3' controlId={`${tableName}`}>
+            <Row>
+              {Object.keys(tableData[0]).map((field, i) => (
+                <>
+                  <Form.Label>
+                    {field}
+                  </Form.Label>
+                  <Form.Control type={fieldTypes[tableDataTypes[i].data_type]} ></Form.Control>
+                  {console.log(fieldTypes[tableDataTypes[i].data_type], i)}
+                </>
+              ))}
+            </Row>
+          </Form.Group>
+        </Form>
+        }
+      </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
