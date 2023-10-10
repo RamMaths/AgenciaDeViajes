@@ -1,5 +1,4 @@
 //modules
-import axios from 'axios';
 import Cookies from 'js-cookie';
 
 //bootstrap components
@@ -13,6 +12,7 @@ import { useState } from 'react';
 //my components
 import { useGlobalContext } from '../../../App';
 import DangerAlert from '../../DangerAlert';
+import { postRequest } from '../../utils/Utils';
 
 const Login = () => {
 
@@ -36,20 +36,21 @@ const Login = () => {
       }
 
       if(!sent) {
-        axios({
-          method: 'post',
-          url: `http://${import.meta.env.VITE_HOST}:3000/api/users/login`,
-          data: newForm
-        }).then(res => {
-          setUser(res.data.data);
-          Cookies.set('jwt', res.data.token);
-        }, err => {
-          console.error(err);
-          setError({
-            show: true,
-            message: err.response.data.message
-          });
-        });
+        postRequest(
+          `http://${import.meta.env.VITE_HOST}:3000/api/users/login`,
+          newForm,
+          (res) => {
+            setUser(res.data.data);
+            Cookies.set('jwt', res.data.token);
+          },
+          (err) => {
+            console.error(err);
+            setError({
+              show: true,
+              message: err.response.data.message
+            });
+          }
+        );
       }
 
       sent = true;

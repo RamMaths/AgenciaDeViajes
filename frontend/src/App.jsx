@@ -67,7 +67,7 @@ const App = () => {
       user,
       setUser,
       serverError,
-      setServerError
+      setServerError,
     }}>
       <RouterProvider router={router}>
       </RouterProvider>
