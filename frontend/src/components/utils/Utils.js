@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-export const postRequest = (url, data, cbSuccess, cbError) => {
+export const postRequest = (url, data, cbSuccess, cbError, headers=null) => {
   axios({
     method: 'post',
     url,
-    data
+    data,
+    headers
   }).then(res => {
     cbSuccess(res);
   }, err => {
@@ -12,7 +13,7 @@ export const postRequest = (url, data, cbSuccess, cbError) => {
   });
 };
 
-export const getRequest = (url, headers=null, cbSuccess, cbError) => {
+export const getRequest = (url, cbSuccess, cbError, headers=null) => {
   axios({
     method: 'get',
     url,
@@ -22,4 +23,4 @@ export const getRequest = (url, headers=null, cbSuccess, cbError) => {
   }, err => {
     cbError(err);
   });
-}
+};

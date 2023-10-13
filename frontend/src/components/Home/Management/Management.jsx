@@ -41,14 +41,14 @@ const Management = () => {
   const fetchInfo = async (url, hook) => {
     getRequest(
       url,
-      {
-        'Authorization': `Bearer ${Cookies.get('jwt')}`
-      },
       (res) => {
         hook(res.data.data);
       },
       (err) => {
         console.log(err);
+      },
+      {
+        'Authorization': `Bearer ${Cookies.get('jwt')}`
       }
     );
   };

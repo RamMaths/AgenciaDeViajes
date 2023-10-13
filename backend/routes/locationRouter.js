@@ -10,11 +10,6 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.getAllCities
-  )
-  .post(
-    authController.protect,
-    authController.restrictTo(2),
-    locationController.createCity
   );
 
 locationRouter
@@ -23,11 +18,6 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.getAllStates
-  )
-  .post(
-    authController.protect,
-    authController.restrictTo(2),
-    locationController.createState
   );
 
 locationRouter

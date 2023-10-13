@@ -71,7 +71,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   }
 
-  if(!token) next(new AppError('No has iniciado sesión', 401));
+  if(!token) return next(new AppError('No has iniciado sesión', 401));
 
   //Here we verify the token
   //In order to prevent the thread to be blocked I promosify this method

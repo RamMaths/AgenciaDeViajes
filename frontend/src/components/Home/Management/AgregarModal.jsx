@@ -15,17 +15,16 @@ import {
 } from 'react-bootstrap';
 //my components
 import { useManagementContext } from './Management';
+import { useGlobalContext } from '../../../App';
 import { 
   getRequest,
   postRequest
 } from '../../utils/Utils';
+import DangerAlert from '../../DangerAlert';
 
 const fetchAndSet = async (url, hook) => {
   getRequest(
     url,
-    {
-      'Authorization': `Bearer ${Cookies.get('jwt')}`
-    },
     (res) => {
       const newObj = {};
       res.data.data.map(el => {
@@ -35,50 +34,78 @@ const fetchAndSet = async (url, hook) => {
     },
     (err) => {
       console.log(err);
+    },
+    {
+      'Authorization': `Bearer ${Cookies.get('jwt')}`
     }
   );
 };
 
 const fieldTypes = {
   'integer': 'number',
-  'numeric':  'text',
+  'numeric':  'number',
   'character varying': 'text',
   'date': 'date',
 };
 
-const handleSubmit = () => {
-  e.preventDefault();
-  //cleaning the inputs
-  setError({...error, show: false});
-
-  const formData = new FormData(e.currentTarget);
-  const formObj = Object.fromEntries(formData.entries());
-
-  for(const [key, value] of Object.entries(formObj)) {
-    formObj[key] = value.trim();
-  }
-
-  console.log(formObj);
-
-  // postRequest(
-
-  // );
-};
-
 const AgregarModal = ({showAgregar, setShowAgregar}) => {
-  const handleClose = () => {
-    setShowAgregar(false);
-  }
+  let search = true;
 
+  //contexts
   const {
     tableLinks, 
     tableName, 
     tableData
   } = useManagementContext();
+  const {
+    error,
+    setError
+  } = useGlobalContext();
 
+  //hooks
   const [tableDataTypes, setTableDataTypes] = useState(null);
 
-  let search = true;
+  //callbacks
+  const handleClose = () => {
+    setShowAgregar(false);
+    setError(err => { return {...err, show: false}});
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const formObj = Object.fromEntries(formData.entries());
+
+    for(const [key, value] of Object.entries(formObj)) {
+      const inputElement = document.querySelector(`[name="${key}"]`);
+      if (inputElement.type === 'number' && inputElement.step === 'any') {
+        formObj[key] = parseFloat(value);
+      } else if(inputElement.type === 'number') {
+        formObj[key] = parseInt(value);
+      } else {
+        formObj[key] = value.trim();
+      }
+    }
+    postRequest(
+      tableLinks[tableName][0],
+      formObj,
+      (res) => {
+        console.log(res.data.data);
+        handleClose();
+      },
+      (err) => {
+        console.error(err);
+        setError({
+          show: true,
+          message: err.response.data.message
+        });
+      },
+      {
+        'Authorization': `Bearer ${Cookies.get('jwt')}`
+      }
+    );
+
+  };
 
   useEffect(() => { 
     if(tableLinks && tableName && showAgregar && search) {
@@ -87,12 +114,14 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
     }
   }, [showAgregar]);
 
+  //component
   return (
     <Modal show={showAgregar} onHide={handleClose} centered>
-      <Modal.Header closeButton>
+      <Modal.Header>
         <Modal.Title>Agrega registros</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        {error.show && <DangerAlert/>}
         {tableDataTypes && 
         <Form onSubmit={handleSubmit}>
           <Form.Group className='m-3 mb-4' controlId={`${tableName}`}>
@@ -101,7 +130,12 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
                 return !field.startsWith('id') && (
                 <div className='mt-2'key={field}>
                   <Form.Label>{field}</Form.Label>
-                  <Form.Control name={field} type={fieldTypes[tableDataTypes[field]]} ></Form.Control>
+                  <Form.Control 
+                    name={field} 
+                    type={fieldTypes[tableDataTypes[field]]} 
+                    step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
+                  >
+                  </Form.Control>
                 </div>)
             })}
             </Row>

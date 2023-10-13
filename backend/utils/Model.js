@@ -102,10 +102,17 @@ class Model {
   //private methods
 
   async _execute(query) {
-    const client = await this.pool.connect();
-    const qRes = await client.query(query)
-    const results = qRes.rows;
-    client.release();
+    let results;
+    let client;
+    try {
+      client = await this.pool.connect();
+      const qRes = await client.query(query)
+      results = qRes.rows;
+    } catch(error) {
+      throw error;
+    } finally {
+      client.release();
+    }
 
     return results;
   }
