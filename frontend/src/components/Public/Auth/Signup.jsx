@@ -1,6 +1,3 @@
-//modules
-import axios from 'axios';
-
 //bootstrap components
 import { Container } from 'react-bootstrap';
 import { Form, Row, Col, Button, Alert } from 'react-bootstrap';
@@ -9,6 +6,7 @@ import { Link } from 'react-router-dom';
 //my components
 import { useGlobalContext } from '../../../App';
 import DangerAlert from '../../DangerAlert';
+import { postRequest } from '../../utils/Utils';
 
 const sexs = {
   'No binario': 1,
@@ -44,26 +42,25 @@ const Signup = () => {
     formObj.id_sexo = sexs[formObj.id_sexo];
 
     console.log(formObj);
-    
     if(!sent) {
-      axios({
-        method: 'post',
-        url: `http://${import.meta.env.VITE_HOST}:3000/api/clientes/signup`,
-        data: formObj
-      }).then(res => {
-        window.location.replace('/login');
-      }, err => {
+      postRequest(
+        `http://${import.meta.env.VITE_HOST}:3000/api/users/signup`,
+        formObj,
+        (res) => {
+          window.location.replace('/login');
+        },
+        (err) => {
+          if(`${err.response.status}`.startsWith('5')) {
+            setServerError(true);
+            return;
+          }
 
-        if(`${err.response.status}`.startsWith('5')) {
-          setServerError(true);
-          return;
+          setError({
+            show: true,
+            message: err.response.data.message
+          });
         }
-
-        setError({
-          show: true,
-          message: err.response.data.message
-        });
-      });
+      );
     }
 
     sent = true;

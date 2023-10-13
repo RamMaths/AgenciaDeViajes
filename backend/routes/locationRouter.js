@@ -1,5 +1,6 @@
 const express = require('express');
 const locationRouter = express.Router();
+
 const authController = require('../controllers/authController');
 const locationController = require('../controllers/locationController');
 
@@ -9,8 +10,7 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.getAllCities
-  )
-  .post();
+  );
 
 locationRouter
   .route('/states')
@@ -26,6 +26,19 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.getAllCountries
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.createCountry
+  );
+
+locationRouter
+  .route('/countries/datatypes')
+  .get(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.getCountriesDataTypes
   );
 
 module.exports = locationRouter;

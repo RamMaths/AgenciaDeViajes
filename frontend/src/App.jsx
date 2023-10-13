@@ -13,6 +13,7 @@ import ErrorPage from './ErrorPage';
 import Login from './components/Public/Auth/Login';
 import Signup from './components/Public/Auth/Signup';
 import HomeRoot from './components/Home/HomeRoot';
+import Management from './components/Home/Management/Management';
 
 //Global Context
 const GlobalContext = createContext();
@@ -30,17 +31,17 @@ const App = () => {
   //router
   const router = createBrowserRouter([
     {
-      path: "/",
+      path: '/',
       element: !user ? <PublicRoot/> : <Navigate to='/home'/>,
       errorElement: <ErrorPage/>,
       children: [
         {
-          path: "/login/",
+          path: '/login',
           element: <Login/>,
           errorElement: <ErrorPage/>,
         },
         {
-          path: "/signup",
+          path: '/signup',
           element: <Signup/>,
           errorElement: <ErrorPage/>
         }
@@ -50,6 +51,12 @@ const App = () => {
       path: '/home/',
       element: user ? <HomeRoot/> : <Navigate to='/login'/>,
       errorElement: <ErrorPage/>,
+      children: [
+        {
+          path: '/home/management',
+          element: <Management/>
+        }
+      ],
     }
   ]);
 
@@ -60,7 +67,7 @@ const App = () => {
       user,
       setUser,
       serverError,
-      setServerError
+      setServerError,
     }}>
       <RouterProvider router={router}>
       </RouterProvider>

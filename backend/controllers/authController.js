@@ -4,6 +4,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/UserModel');
+const cookie = require('cookie');
 
 exports.signUp = catchAsync(async (req, res, next) => {
   //This function validates the fields
@@ -62,29 +63,6 @@ exports.login = catchAsync(async (req, res, next) => {
   sendToken(token, 200, res, usuario);
 });
 
-const signToken = (id) => {
-  return jwt.sign({id}, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN
-  });
-};
-
-const sendToken = (token, statusCode, res, usuario) => {
-  const cookieOptions = {
-    expires: new Date(Date.now + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000),
-    httpOnly: true
-  }
-
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
-  res.cookie('jwt', token);
-
-  res.status(statusCode).json({
-    status: 'success',
-    data: usuario,
-    token
-  });
-}
-
 exports.protect = catchAsync(async (req, res, next) => {
   let token = null;
 
@@ -92,7 +70,8 @@ exports.protect = catchAsync(async (req, res, next) => {
   if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
-  if(!token) next(new AppError('No has iniciado sesión', 401));
+
+  if(!token) return next(new AppError('No has iniciado sesión', 401));
 
   //Here we verify the token
   //In order to prevent the thread to be blocked I promosify this method
@@ -142,3 +121,28 @@ const validateSignupFields = (fields) => {
   if (fields.telefono.length > 10) return new AppError('El telefono no debe exceder los 10 dígitos', 400);
 };
 
+const signToken = (id) => {
+  return jwt.sign({id}, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN
+  });
+};
+
+const sendToken = (token, statusCode, res, usuario) => {
+  const cookieOptions = {
+    httpOnly: true,
+    path: '/',
+    maxAge: 3600
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  const myCookie = cookie.serialize('jwt', token, cookieOptions);
+
+  res.setHeader('Set-Cookie', myCookie);
+
+  res.status(statusCode).json({
+    status: 'success',
+    data: usuario,
+    token
+  });
+}

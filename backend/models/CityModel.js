@@ -7,5 +7,5 @@ class CityModel extends Model {
   }
 }
 
-const city = new CityModel('Ciudades', pool);
+const city = new CityModel('ciudades', pool);
 module.exports = city;

@@ -8,7 +8,7 @@ const DangerAlert = () => {
   const { error, setError } = useGlobalContext();
 
   return (
-    <Alert className='sticky-top' variant="danger" onClose={() => setError({...error, show: false})} dismissible>
+    <Alert className='sticky-top m-3' variant="danger" onClose={() => setError({...error, show: false})} dismissible>
       <Alert.Heading>Alerta</Alert.Heading>
       <p>
         {error.message}
