@@ -4,25 +4,44 @@ import {
   Container
 } from 'react-bootstrap';
 
+//context
+import { useManagementContext } from './Management';
+
 const ResultTable = ({table}) => {
+  const {
+    editing,
+    setEditing,
+    empty
+  } = useManagementContext();
 
   return (
     <Container>
       <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
         <thead>
           <tr>
-            {table && Object.keys(table[0]).map(field => {
-              return <th key={field}>{field}</th>
+            {table && !empty && Object.keys(table[0]).map(field => {
+              return (
+                <th key={field}>
+                  {field.startsWith('_') ? field.replace('_', '') : field}
+                </th>
+              )
             })}
+            {
+              empty && table.map(objField => (
+                <th key={objField.column_name}>
+                  {objField.startsWith('_') ? objField.replace('_', '') : objField}
+                </th>
+              ))
+            }
           </tr>
         </thead>
         <tbody>
-          {table && table.map((row, i) => (
+          {table && !empty && table.map((row, i) => (
             <tr key={i}>
               {Object.values(row).map(value => (
                 <td key={value}>{value}</td>
               ))}
-              <td>hello</td>
+              {editing && <td>hello</td>}
             </tr>
           ))}
         </tbody>

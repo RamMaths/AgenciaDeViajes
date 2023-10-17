@@ -55,7 +55,9 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
   const {
     tableLinks, 
     tableName, 
-    tableData
+    tableData,
+    handleRefresh,
+    empty
   } = useManagementContext();
   const {
     error,
@@ -92,6 +94,7 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
       (res) => {
         console.log(res.data.data);
         handleClose();
+        handleRefresh();
       },
       (err) => {
         console.error(err);
@@ -126,18 +129,26 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
         <Form onSubmit={handleSubmit}>
           <Form.Group className='m-3 mb-4' controlId={`${tableName}`}>
             <Row>
-              {Object.keys(tableData[0]).map((field, i) => { 
-                return !field.startsWith('id') && (
-                <div className='mt-2'key={field}>
-                  <Form.Label>{field}</Form.Label>
-                  <Form.Control 
-                    name={field} 
-                    type={fieldTypes[tableDataTypes[field]]} 
-                    step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
-                  >
-                  </Form.Control>
-                </div>)
-            })}
+            {
+              tableData && Object.keys(tableData[0]).map((field, i) => { 
+                empty ? field.column_name : field;
+                if(field.startsWith('id') && i === 0) return undefined;
+                else {
+                  return (
+                    !field.startsWith('_') &&
+                    <div className='mt-2'key={field}>
+                      <Form.Label>{field}</Form.Label>
+                      <Form.Control 
+                        name={field} 
+                        type={fieldTypes[tableDataTypes[field]]} 
+                        step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
+                      >
+                      </Form.Control>
+                    </div>
+                  )
+                }
+              })
+            }
             </Row>
           </Form.Group>
           <Row>

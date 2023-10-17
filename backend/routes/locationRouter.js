@@ -18,7 +18,21 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.getAllStates
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.createState
   );
+
+locationRouter
+  .route('/states/datatypes')
+  .get(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.getStatesDataTypes
+  );
+
 
 locationRouter
   .route('/countries')

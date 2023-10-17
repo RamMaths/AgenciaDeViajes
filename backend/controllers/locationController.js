@@ -14,6 +14,33 @@ exports.getAllStates = catchAsync(async(req, res, next) => {
   getAll(StateModel, res);
 });
 
+exports.createState = catchAsync(async(req, res, next) => {
+  if(
+    !req.body.id_pais,
+    !req.body.nombre
+  ) return next(new AppError('Debes ingresar los datos mencionados', 400));
+
+  const result = await StateModel.create({
+    id_pais: req.body.id_pais,
+    nombre: req.body.nombre
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: result
+  });
+});
+
+exports.getStatesDataTypes = catchAsync(async(req, res, next) => {
+  const result = await StateModel.dataTypes();
+
+  res.status(200).json({
+    status: 'success',
+    data: result
+  })
+});
+
+
 //countries
 exports.getAllCountries = catchAsync(async(req, res, next) => {
   getAll(CountryModel, res);
@@ -50,10 +77,17 @@ exports.getCountriesDataTypes = catchAsync(async(req, res, next) => {
 
 //general
 const getAll = async (Model, res) => {
-  const result = await Model.find();
+  let empty = undefined;
+  let result = await Model.find();
+
+  if(result.length === 0) {
+    result = await Model.getColumns();
+    empty = true;
+  }
 
   res.status(200).json({
     status: 'success',
-    data: result
+    data: result,
+    empty
   });
 }

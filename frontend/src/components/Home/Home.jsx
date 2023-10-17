@@ -14,7 +14,7 @@ const Home = () => {
   const { user } = useGlobalContext();
 
   return (
-    <Container className='text-secondary'>
+    <Container className='text-secondary' style={{minHeight: '65vh'}}>
       <h1 className='mt-5'>Hola, {user.nombre}</h1>
       <p className='mb-0'>Tus viajes agendados son: </p>
       <div className='d-flex flex-column justify-content-center align-items-center'>

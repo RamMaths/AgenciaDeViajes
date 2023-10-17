@@ -22,6 +22,10 @@ const tableLinks = {
   'Paises': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`
+  ],
+  'Estados': [
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`
   ]
 };
 
@@ -31,17 +35,28 @@ export const useManagementContext = () => useContext(ManagementContext);
 const Management = () => {
   const [tableName, setTableName] = useState('Ninguna');
   const [tableData, setTableData] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [empty, setEmpty] = useState(false);
 
   const handleTableChange = (e) => {
     setTableName(e.target.value);
-    if(e.target.value == 'Ninguna') return;
+    if(e.target.value == 'Ninguna') {
+      setEditing(false);
+      return;
+    }
     fetchInfo(tableLinks[e.target.value][0], setTableData);
+  };
+
+  const handleRefresh = () => {
+    fetchInfo(tableLinks[tableName][0], setTableData);
   };
 
   const fetchInfo = async (url, hook) => {
     getRequest(
       url,
       (res) => {
+        if(res.data.empty) setEmpty(res.data.empty);
+        else setEmpty(false);
         hook(res.data.data);
       },
       (err) => {
@@ -61,9 +76,13 @@ const Management = () => {
       setTableName, 
       tableData, 
       setTableData,
-      fetchInfo
+      fetchInfo,
+      handleRefresh,
+      editing,
+      setEditing,
+      empty
     }}>
-      <Container>
+      <Container className='' style={{minHeight: '70vh'}}>
         <Options/>
         { tableName != 'Ninguna' && tableData && <ResultTable table={tableData}/> }
       </Container>

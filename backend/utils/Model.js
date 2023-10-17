@@ -99,20 +99,29 @@ class Model {
     return await this._execute(query);
   }
 
+  async getColumns() {
+    const query = `
+      SELECT column_name 
+      FROM information_schema.columns
+      WHERE table_name='${this.table}';
+    `;
+
+    return await this._execute(query);
+  }
+
   //private methods
 
   async _execute(query) {
     let results;
     let client;
-    try {
-      client = await this.pool.connect();
-      const qRes = await client.query(query)
-      results = qRes.rows;
-    } catch(error) {
-      throw error;
-    } finally {
+    client = await this.pool.connect();
+    const qRes = await client.query(query)
+    client.on('error', (err) => {
       client.release();
-    }
+      throw err;
+    });
+    results = qRes.rows;
+    client.release();
 
     return results;
   }

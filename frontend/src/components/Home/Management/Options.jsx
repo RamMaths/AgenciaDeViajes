@@ -21,18 +21,16 @@ const Options = () => {
     tableLinks,
     tableName,
     tableData,
-    fetchInfo,
-    setTableData
+    handleRefresh,
+    editing,
+    setEditing
   } = useManagementContext();
 
   const [showAgregar, setShowAgregar] = useState(false);
 
   const handleShowAgregar = () => {
     setShowAgregar(true);
-  };
-
-  const handleRefresh = () => {
-    fetchInfo(tableLinks[tableName][0], setTableData);
+    setEditing(false);
   };
 
   return (
@@ -58,10 +56,17 @@ const Options = () => {
       <Row>
         <Col>
           <div className='d-flex justify-content-start my-3'>
-            <Button className='btn-light border border-light-subtle' onClick={handleRefresh}><i className='bi bi-arrow-clockwise fs-5'></i></Button>
-            <Button className='ms-3' onClick={handleShowAgregar}><i className='bi bi-file-earmark-plus fs-5 me-2'></i>Agregar</Button>
-            <Button className='btn-secondary ms-3'><i className='bi bi-pencil-square fs-5 me-2'></i>Editar</Button>
-            <Button className='btn-danger ms-3'><i className='bi bi-file-earmark-x  fs-5 me-2'></i>Eliminar</Button>
+            {
+              !editing ? 
+              <Button className='btn-secondary ms-3 me-3' onClick={() => setEditing(true)}>
+                <i className='bi bi-pencil-square fs-5'></i>
+              </Button> :
+              <Button className='btn-danger d-flex justify-content-center align-items-center ms-3 me-3' onClick={() => setEditing(false)}>
+                <i className='bi bi-x-lg fs-5'></i>
+              </Button>
+            }
+            {editing && <Button className='btn-danger me-3'><i className='bi bi-file-earmark-x fs-5'></i></Button>}
+            {!editing && <Button className='me-3' onClick={handleShowAgregar}><i className='bi bi-file-earmark-plus fs-5'></i></Button>}
           </div>
         </Col>
       </Row>
