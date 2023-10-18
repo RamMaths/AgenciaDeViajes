@@ -6,7 +6,7 @@ class StateModel extends Model {
     super(table, pool);
   }
 
-  async find(fields = null, filters = null) {
+  async find({ fields, filters }) {
     let query = '';
 
     if(!fields && !filters) {

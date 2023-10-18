@@ -13,19 +13,21 @@ class Model {
     return await this._execute(query);
   }
 
-  async find(fields = null, filters = null) {
+  async find({fields, filters, join}) {
     let query = '';
 
     if(!fields && !filters) {
       query = `
       SELECT * 
       FROM ${this.table}
+      ${join}
     `;
     } else if(!filters) {
       query = {
         text: `
         SELECT ${Object.keys(fields).join(', ')}
         FROM ${this.table}
+        ${join}
         `,
         values: Object.values(fields)
       };
@@ -41,6 +43,7 @@ class Model {
         SELECT ${Object.keys(fields).join(', ')}
         FROM ${this.table}
         WHERE ${conditions.join(' AND ')}
+        ${join}
       `,
       values: Object.values(fields)
       };

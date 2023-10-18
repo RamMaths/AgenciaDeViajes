@@ -7,11 +7,12 @@ import {
 //context
 import { useManagementContext } from './Management';
 
-const ResultTable = ({table}) => {
+const ResultTable = () => {
   const {
     editing,
     setEditing,
-    empty
+    empty,
+    tableData
   } = useManagementContext();
 
   return (
@@ -19,7 +20,7 @@ const ResultTable = ({table}) => {
       <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
         <thead>
           <tr>
-            {table && !empty && Object.keys(table[0]).map(field => {
+            {tableData && !empty && Object.keys(tableData[0]).map(field => {
               return (
                 <th key={field}>
                   {field.startsWith('_') ? field.replace('_', '') : field}
@@ -27,7 +28,7 @@ const ResultTable = ({table}) => {
               )
             })}
             {
-              empty && table.map(objField => (
+              empty && tableData.map(objField => (
                 <th key={objField.column_name}>
                   {objField.startsWith('_') ? objField.replace('_', '') : objField}
                 </th>
@@ -36,14 +37,15 @@ const ResultTable = ({table}) => {
           </tr>
         </thead>
         <tbody>
-          {table && !empty && table.map((row, i) => (
-            <tr key={i}>
-              {Object.values(row).map(value => (
-                <td key={value}>{value}</td>
+          {tableData && !empty && tableData.map((row, i) => {
+            console.log(Object.keys(row)[i]);
+            return <tr key={Object.values(row)[i] + `${i}`}>
+              {Object.values(row).map((value, i) => (
+                <td key={value + `${i}`}>{value}</td>
               ))}
               {editing && <td>hello</td>}
             </tr>
-          ))}
+          })}
         </tbody>
       </Table>
     </Container>

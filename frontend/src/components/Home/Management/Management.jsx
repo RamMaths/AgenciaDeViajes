@@ -21,11 +21,14 @@ const tableLinks = {
   'Ninguna': null,
   'Paises': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
-    `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`,
+    true // this means if it is a parent table which must be at the very end of the array
   ],
   'Estados': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
-    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`,
+    ``,
+    false
   ]
 };
 
@@ -37,12 +40,16 @@ const Management = () => {
   const [tableData, setTableData] = useState(null);
   const [editing, setEditing] = useState(false);
   const [empty, setEmpty] = useState(false);
+  const [childrenCol, setChildrenCol] = useState(false);
 
   const handleTableChange = (e) => {
     setTableName(e.target.value);
     if(e.target.value == 'Ninguna') {
       setEditing(false);
       return;
+    }
+    if(!tableLinks[e.target.value][tableLinks[e.target.value].length - 1]) {
+      fetchInfo(tableLinks[e.target.value][2], setChildrenCol);
     }
     fetchInfo(tableLinks[e.target.value][0], setTableData);
   };
