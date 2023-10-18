@@ -92,7 +92,6 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
       tableLinks[tableName][0],
       formObj,
       (res) => {
-        console.log(res.data.data);
         handleClose();
         handleRefresh();
       },

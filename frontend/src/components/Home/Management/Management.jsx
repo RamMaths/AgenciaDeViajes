@@ -49,7 +49,7 @@ const Management = () => {
       return;
     }
     if(!tableLinks[e.target.value][tableLinks[e.target.value].length - 1]) {
-      fetchInfo(tableLinks[e.target.value][2], setChildrenCol);
+      // fetchInfo(tableLinks[e.target.value][2], setChildrenCol);
     }
     fetchInfo(tableLinks[e.target.value][0], setTableData);
   };

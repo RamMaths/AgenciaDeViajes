@@ -38,7 +38,6 @@ const ResultTable = () => {
         </thead>
         <tbody>
           {tableData && !empty && tableData.map((row, i) => {
-            console.log(Object.keys(row)[i]);
             return <tr key={Object.values(row)[i] + `${i}`}>
               {Object.values(row).map((value, i) => (
                 <td key={value + `${i}`}>{value}</td>

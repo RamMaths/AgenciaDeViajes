@@ -11,7 +11,23 @@ exports.getAllCities = catchAsync(async(req, res, next) => {
 
 //states
 exports.getAllStates = catchAsync(async(req, res, next) => {
-  getAll(StateModel, res);
+  let result = await StateModel.find({
+    fields: ['e.id_estado', 'e.nombre', 'p.id_pais', 'p.nombre as _país'],
+    join: ['JOIN paises p ON e.id_pais = p.id_pais']
+  });
+
+  let empty = false;
+
+  if(result.length === 0) {
+    result = await Model.getColumns();
+    empty = true;
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: result,
+    empty
+  });
 });
 
 exports.createState = catchAsync(async(req, res, next) => {
@@ -78,7 +94,7 @@ exports.getCountriesDataTypes = catchAsync(async(req, res, next) => {
 //general
 const getAll = async (Model, res) => {
   let empty = undefined;
-  let result = await Model.find();
+  let result = await Model.find({});
 
   if(result.length === 0) {
     result = await Model.getColumns();

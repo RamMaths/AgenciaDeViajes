@@ -18,18 +18,16 @@ class Model {
 
     if(!fields && !filters) {
       query = `
-      SELECT * 
-      FROM ${this.table}
-      ${join}
-    `;
-    } else if(!filters) {
+        SELECT * 
+        FROM ${this.table}
+      `;
+    } else if(fields && !filters) {
       query = {
         text: `
-        SELECT ${Object.keys(fields).join(', ')}
-        FROM ${this.table}
+        SELECT ${fields.join(', ')}
+        FROM ${this.table} ${this.table.charAt(0)}
         ${join}
-        `,
-        values: Object.values(fields)
+        `
       };
     } else {
       const conditions = [];
@@ -41,7 +39,7 @@ class Model {
       query = {
         text: `
         SELECT ${Object.keys(fields).join(', ')}
-        FROM ${this.table}
+        FROM ${this.table} ${this.table.charAt(0)}
         WHERE ${conditions.join(' AND ')}
         ${join}
       `,
