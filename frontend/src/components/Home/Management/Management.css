@@ -1,0 +1,7 @@
+.selected {
+  background-color: #fa344c;
+}
+
+.selected:hover {
+  background-color: #ff5267;
+}

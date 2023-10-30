@@ -100,6 +100,17 @@ class Model {
     return await this._execute(query);
   }
 
+  async delete(arr, id) {
+    const query = {
+      text: `
+        DELETE FROM ${this.table}
+        WHERE ${id} IN (${arr.join(', ')})
+      `
+    }
+
+    return await this._execute(query);
+  }
+
   async getColumns() {
     const query = `
       SELECT column_name 

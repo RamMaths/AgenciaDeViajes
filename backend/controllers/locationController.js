@@ -58,11 +58,11 @@ exports.getStatesDataTypes = catchAsync(async(req, res, next) => {
 
 
 //countries
-exports.getAllCountries = catchAsync(async(req, res, next) => {
+exports.getAllCountries = catchAsync(async (req, res, next) => {
   getAll(CountryModel, res);
 });
 
-exports.createCountry = catchAsync(async(req, res, next) => {
+exports.createCountry = catchAsync(async (req, res, next) => {
   if(
     !req.body.nombre ||
     !req.body.latitud ||
@@ -80,6 +80,13 @@ exports.createCountry = catchAsync(async(req, res, next) => {
     status: 'success',
     data: result
   });
+});
+
+exports.deleteCountry = catchAsync(async (req, res, next) => {
+  const countries = req.body.countries;
+
+  const result = await CountryModel.delete(countries, 'id_pais');
+
 });
 
 exports.getCountriesDataTypes = catchAsync(async(req, res, next) => {

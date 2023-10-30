@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
-    "host": "NODE_ENV=production nodemon server.js --host 172.20.10.2"
+    "host": "NODE_ENV=production nodemon server.js --host 192.168.1.70"
   },
   "repository": {
     "type": "git",
