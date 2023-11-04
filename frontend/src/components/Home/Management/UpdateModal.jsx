@@ -1,3 +1,4 @@
+// react-bootstrap
 import { 
   Modal,
   Button,
@@ -6,59 +7,101 @@ import {
   Col
 } from 'react-bootstrap';
 
-const UpdateModal = () => {
+//react
+import { useEffect } from 'react';
+
+//context
+import { useManagementContext } from './Management';
+
+const fieldTypes = {
+  'integer': 'number',
+  'numeric':  'number',
+  'character varying': 'text',
+  'date': 'date',
+};
+
+const UpdateModal = ({showUpdate, setShowUpdate, updateField}) => {
+
+  const {
+    fetchAndSet,
+    tableLinks,
+    tableName,
+    tableDataTypes,
+    setTableDataTypes,
+    handleRefresh
+  } = useManagementContext();
+
+  const handleClose = () => {
+    setShowUpdate(false);
+  };
+
+  let search = true;
+
+  useEffect(() => { 
+    if(tableLinks && tableName && showUpdate && search) {
+      fetchAndSet(tableLinks[tableName][1], setTableDataTypes);
+      search = false;
+    }
+  }, [showUpdate]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const formObj = Object.fromEntries(formData.entries());
+
+    const inputElement = document.querySelector(`[name="${updateField.field}"]`);
+
+    if (inputElement.type === 'number' && inputElement.step === 'any') {
+      formObj[updateField.field] = parseFloat(formObj[updateField.field]);
+    } else if(inputElement.type === 'number') {
+      formObj[updateField.field] = parseInt(formObj[updateField.field]);
+    } else {
+      formObj[updateField.field] = formObj[updateField.field].trim();
+    }
+
+    patchRequest(
+      tableLinks[tableName][0],
+      {
+        field: updateField.field,
+        value: formObj[updateField.field],
+        id: updateField.id
+      },
+      (res) => {
+        handleClose();
+        handleRefresh();
+      },
+      (err) => {
+        console.error(err);
+      },
+      {
+        'Authorization': `Bearer ${Cookies.get('jwt')}`
+      }
+    );
+  };
 
   return (
-    <Modal show={showAgregar} onHide={handleClose} centered>
+    <Modal show={showUpdate} onHide={handleClose} centered>
       <Modal.Header>
-        <Modal.Title>Agrega registros</Modal.Title>
+        <Modal.Title>Actualiza el campo</Modal.Title>
       </Modal.Header>
       <Modal.Body className='mt-0' style={{marginTop: '0'}}>
-        {error.show && <DangerAlert/>}
-        {tableDataTypes && 
         <Form onSubmit={handleSubmit}>
           <Form.Group className='m-3 mb-4' controlId={`${tableName}`}>
             <Row>
-            {
-              tableData && !empty && Object.keys(tableData[0]).map((field, i) => { 
-                if(field.startsWith('id') && i === 0) return undefined;
-                else {
-                  return (
-                    !field.startsWith('_') &&
-                    <div className='mt-2'key={field}>
-                      <Form.Label>{field}</Form.Label>
-                      <Form.Control 
-                        name={field} 
-                        type={fieldTypes[tableDataTypes[field]]} 
-                        step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
-                      >
-                      </Form.Control>
-                    </div>
-                  )
-                }
-              })
-            }
-
-            {
-              tableData && empty && Object.values(tableData).map((field, i) => { 
-                field = field.column_name;
-                if(field.startsWith('id') && i === 0) return undefined;
-                else {
-                  return (
-                    !field.startsWith('_') &&
-                    <div className='mt-2'key={field}>
-                      <Form.Label>{field}</Form.Label>
-                      <Form.Control 
-                        name={field} 
-                        type={fieldTypes[tableDataTypes[field]]} 
-                        step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
-                      >
-                      </Form.Control>
-                    </div>
-                  )
-                }
-              })
-            }
+              {
+                tableDataTypes && (
+                  <>
+                    <Form.Label>{updateField.field}</Form.Label>
+                    <Form.Control 
+                      name={updateField.field} 
+                      type={fieldTypes[tableDataTypes[updateField.field]]} 
+                      step={tableDataTypes[updateField.field] === 'numeric' ? 'any' : undefined}
+                      defaultValue={updateField.value}
+                    >
+                    </Form.Control>
+                  </>
+                )
+              }
             </Row>
           </Form.Group>
           <Row>
@@ -69,12 +112,11 @@ const UpdateModal = () => {
             </Col>
             <Col>
               <Button className='w-100' type='submit'>
-                Crear registro
+                Actualizar
               </Button>
             </Col>
           </Row>
         </Form>
-        }
       </Modal.Body>
     </Modal>
 

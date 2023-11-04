@@ -40,6 +40,26 @@ const Management = () => {
   const [empty, setEmpty] = useState(false);
   const [deletions, setDeletions] = useState([]);
   const cannotUpdate = useRef(new Map([]));
+  const [tableDataTypes, setTableDataTypes] = useState(null);
+
+  const fetchAndSet = async (url, hook) => {
+    getRequest(
+      url,
+      (res) => {
+        const newObj = {};
+        res.data.data.map(el => {
+          newObj[el.column_name] = el.data_type;
+        });
+        hook(newObj);
+      },
+      (err) => {
+        console.log(err);
+      },
+      {
+        'Authorization': `Bearer ${Cookies.get('jwt')}`
+      }
+    );
+  };
 
   const handleTableChange = (e) => {
     setTableName(e.target.value);
@@ -86,7 +106,10 @@ const Management = () => {
       empty,
       deletions,
       setDeletions,
-      cannotUpdate
+      cannotUpdate,
+      fetchAndSet,
+      tableDataTypes,
+      setTableDataTypes
     }}>
       <Container className='' style={{minHeight: '70vh'}}>
         <Options/>

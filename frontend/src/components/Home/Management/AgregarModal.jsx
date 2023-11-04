@@ -22,25 +22,6 @@ import {
 } from '../../utils/Utils';
 import DangerAlert from '../../DangerAlert';
 
-const fetchAndSet = async (url, hook) => {
-  getRequest(
-    url,
-    (res) => {
-      const newObj = {};
-      res.data.data.map(el => {
-        newObj[el.column_name] = el.data_type;
-      });
-      hook(newObj);
-    },
-    (err) => {
-      console.log(err);
-    },
-    {
-      'Authorization': `Bearer ${Cookies.get('jwt')}`
-    }
-  );
-};
-
 const fieldTypes = {
   'integer': 'number',
   'numeric':  'number',
@@ -57,15 +38,15 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
     tableName, 
     tableData,
     handleRefresh,
-    empty
+    empty,
+    fetchAndSet,
+    tableDataTypes,
+    setTableDataTypes
   } = useManagementContext();
   const {
     error,
     setError
   } = useGlobalContext();
-
-  //hooks
-  const [tableDataTypes, setTableDataTypes] = useState(null);
 
   //callbacks
   const handleClose = () => {
