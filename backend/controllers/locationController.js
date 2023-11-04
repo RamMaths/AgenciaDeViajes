@@ -19,7 +19,7 @@ exports.getAllStates = catchAsync(async(req, res, next) => {
   let empty = false;
 
   if(result.length === 0) {
-    result = await Model.getColumns();
+    result = await StateModel.getColumns();
     empty = true;
   }
 
@@ -83,10 +83,12 @@ exports.createCountry = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteCountry = catchAsync(async (req, res, next) => {
-  const countries = req.body.countries;
+  const result = await CountryModel.delete(req.body, 'id_pais');
 
-  const result = await CountryModel.delete(countries, 'id_pais');
-
+  res.status(200).json({
+    status: 'success',
+    data: result
+  });
 });
 
 exports.getCountriesDataTypes = catchAsync(async(req, res, next) => {

@@ -12,29 +12,31 @@ import { useManagementContext } from './Management';
 //react
 import { useState } from 'react';
 
+//css
 import './Management.css';
 
 const ResultTable = () => {
   const {
     editing,
-    setEditing,
     empty,
     tableData,
-    tableName
+    tableName,
+    cannotUpdate
   } = useManagementContext();
 
-  const [checked, setChecked] = useState(false);
+  cannotUpdate.current.clear();
 
-  const handleDeleteRow = (id) => {
-    console.log(id);
+  const handleUpdate = () => {
+    console.log('update');
   };
 
   return (
     <Container>
       <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
         <thead>
-          <tr>
-            {tableData && !empty && Object.keys(tableData[0]).map(field => {
+          <tr className='align-middle text-center'>
+            {tableData && !empty && Object.keys(tableData[0]).map((field, i) => {
+              if(field.startsWith('id')) cannotUpdate.current.set(i);
               return (
                 <th key={field}>
                   {field.startsWith('_') ? field.replace('_', '') : field}
@@ -42,11 +44,13 @@ const ResultTable = () => {
               )
             })}
             {
-              empty && tableData.map(objField => (
-                <th key={objField.column_name}>
-                  {objField.startsWith('_') ? objField.replace('_', '') : objField}
+              empty && tableData.map(objField => {
+                const column = objField.column_name;
+                if(column.startsWith('id')) cannotUpdate.current.set(i);
+                return <th key={objField.column_name}>
+                  {column.startsWith('_') ? column.replace('_', '') : column}
                 </th>
-              ))
+              })
             }
           </tr>
         </thead>
@@ -55,9 +59,15 @@ const ResultTable = () => {
             const id = `${tableName}-${i}`;
             return <tr key={Object.values(row)[i] + `${i}`} className='align-middle text-center' id={id}>
               {Object.values(row).map((value, i) => (
-                <td key={value + `${i}`}>{value}</td>
+                <td 
+                  className={(!cannotUpdate.current.has(i) && editing) ? 'field' : undefined}
+                  onClick={(!cannotUpdate.current.has(i) && editing) ? handleUpdate : undefined}
+                  key={value + `${i}`}>
+                  {value}
+                </td>
               ))}
-              {editing && <Checkbox id={id} setChecked={setChecked}/>}
+              {
+                editing && <td className='d-flex align-items-center justify-content-center' key={`${id}-checkbox`}><Checkbox id={id} id_element={Object.values(row)[0]}/></td>}
             </tr>
           })}
         </tbody>
@@ -66,27 +76,31 @@ const ResultTable = () => {
   );
 };
 
-const Checkbox = ({id, setChecked}) => {
+const Checkbox = ({id, id_element}) => {
+  const {
+    deletions,
+    setDeletions
+  } = useManagementContext();
 
   const handleChange = (event) => {
-    const tr = document.getElementById(id);
 
     if(event.target.checked) {
-      tr.setAttribute('bgcolor', '#fa344');
-      setChecked(false);
+      setDeletions([...deletions, id_element]);
     } else {
-      tr.classList.remove('selected');
-      setChecked(true);
+      setDeletions(del => {
+        const newArr = del.filter(el => el !== id_element);
+        return newArr;
+      });
     }
     
   };
 
   return (
-    <>
+    <div>
       <InputGroup>
         <InputGroup.Checkbox onChange={(event) => handleChange(event, id)}/>
       </InputGroup>
-    </>
+    </div>
   )
 }
 

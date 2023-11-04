@@ -4,7 +4,8 @@ import Cookies from 'js-cookie';
 import { 
   useState,
   useContext,
-  createContext
+  createContext,
+  useRef
 } from 'react';
 
 // bootstrap components
@@ -22,13 +23,10 @@ const tableLinks = {
   'Paises': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`,
-    true // this means if it is a parent table which must be at the very end of the array
   ],
   'Estados': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
-    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`,
-    ``,
-    false
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`
   ]
 };
 
@@ -40,16 +38,14 @@ const Management = () => {
   const [tableData, setTableData] = useState(null);
   const [editing, setEditing] = useState(false);
   const [empty, setEmpty] = useState(false);
-  const [childrenCol, setChildrenCol] = useState(false);
+  const [deletions, setDeletions] = useState([]);
+  const cannotUpdate = useRef(new Map([]));
 
   const handleTableChange = (e) => {
     setTableName(e.target.value);
     if(e.target.value == 'Ninguna') {
       setEditing(false);
       return;
-    }
-    if(!tableLinks[e.target.value][tableLinks[e.target.value].length - 1]) {
-      // fetchInfo(tableLinks[e.target.value][2], setChildrenCol);
     }
     fetchInfo(tableLinks[e.target.value][0], setTableData);
   };
@@ -87,7 +83,10 @@ const Management = () => {
       handleRefresh,
       editing,
       setEditing,
-      empty
+      empty,
+      deletions,
+      setDeletions,
+      cannotUpdate
     }}>
       <Container className='' style={{minHeight: '70vh'}}>
         <Options/>

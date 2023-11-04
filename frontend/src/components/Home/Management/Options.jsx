@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 //react components
 import { useState } from 'react';
 
@@ -11,9 +13,14 @@ import {
 
 //my components
 import AgregarModal from './AgregarModal';
+import DangerAlert from '../../DangerAlert';
+
+//utils
+import { deleteRequest } from '../../utils/Utils';
 
 //context
 import { useManagementContext } from './Management';
+import { useGlobalContext } from '../../../App';
 
 const Options = () => {
   const {
@@ -21,16 +28,58 @@ const Options = () => {
     tableLinks,
     tableName,
     tableData,
-    handleRefresh,
     editing,
-    setEditing
+    setEditing,
+    deletions,
+    setDeletions,
+    handleRefresh
   } = useManagementContext();
+
+  
+  const {
+    error,
+    setError
+  } = useGlobalContext();
 
   const [showAgregar, setShowAgregar] = useState(false);
 
   const handleShowAgregar = () => {
     setShowAgregar(true);
     setEditing(false);
+  };
+
+  const handleDeletion = () => {
+    if (deletions.length <= 0) {
+      //error
+      setError({
+        show: true,
+        message: 'No has seleccionado ningún registro'
+      });
+    } else {
+      deleteRequest(
+        tableLinks[tableName][0],
+        deletions,
+        (res) => {
+          handleRefresh();
+        },
+        (err) => {
+          console.error(err);
+          setError({
+            show: true,
+            message: err.response.data.message
+          });
+        },
+        {
+          'Authorization': `Bearer ${Cookies.get('jwt')}`
+        }
+      );
+  }
+
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setDeletions([]);
   };
 
   return (
@@ -61,16 +110,19 @@ const Options = () => {
               <Button className='btn-secondary ms-3 me-3' onClick={() => setEditing(true)}>
                 <i className='bi bi-pencil-square fs-5'></i>
               </Button> :
-              <Button className='btn-danger d-flex justify-content-center align-items-center ms-3 me-3' onClick={() => setEditing(false)}>
+              <Button className='btn-danger d-flex justify-content-center align-items-center ms-3 me-3' onClick={handleCancel}>
                 <i className='bi bi-x-lg fs-5'></i>
               </Button>
             }
-            {editing && <Button className='btn-danger me-3'><i className='bi bi-file-earmark-x fs-5'></i></Button>}
+            {editing && <Button className='btn-danger me-3'><i className='bi bi-file-earmark-x fs-5' onClick={handleDeletion}></i></Button>}
             {!editing && <Button className='me-3' onClick={handleShowAgregar}><i className='bi bi-file-earmark-plus fs-5'></i></Button>}
           </div>
         </Col>
       </Row>
       )}
+      <div className='w-100'>
+        {error.show && <DangerAlert/>}
+      </div>
     </div>
   );
 };

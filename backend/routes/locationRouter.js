@@ -45,6 +45,11 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.createCountry
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.deleteCountry
   );
 
 locationRouter
