@@ -38,7 +38,7 @@ const Management = () => {
   const [tableData, setTableData] = useState(null);
   const [editing, setEditing] = useState(false);
   const [empty, setEmpty] = useState(false);
-  const [deletions, setDeletions] = useState([]);
+  const deletions = useRef(new Map([]));
   const cannotUpdate = useRef(new Map([]));
   const [tableDataTypes, setTableDataTypes] = useState(null);
 
@@ -105,7 +105,6 @@ const Management = () => {
       setEditing,
       empty,
       deletions,
-      setDeletions,
       cannotUpdate,
       fetchAndSet,
       tableDataTypes,

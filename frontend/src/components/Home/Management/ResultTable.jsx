@@ -25,12 +25,14 @@ const ResultTable = () => {
     empty,
     tableData,
     tableName,
-    cannotUpdate
+    cannotUpdate,
+    deletions
   } = useManagementContext();
   const [showUpdate, setShowUpdate] = useState(false);
   const [updateField, setUpdateField] = useState({});
 
   cannotUpdate.current.clear();
+  deletions.current.clear();
 
   const handleUpdate = ({field, value, id}) => {
     setShowUpdate(true);
@@ -97,12 +99,9 @@ const Checkbox = ({id_element}) => {
   const handleChange = (event) => {
 
     if(event.target.checked) {
-      setDeletions([...deletions, id_element]);
+      deletions.current.set(id_element);
     } else {
-      setDeletions(del => {
-        const newArr = del.filter(el => el !== id_element);
-        return newArr;
-      });
+      deletions.current.delete(id_element);
     }
     
   };

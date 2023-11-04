@@ -31,7 +31,6 @@ const Options = () => {
     editing,
     setEditing,
     deletions,
-    setDeletions,
     handleRefresh
   } = useManagementContext();
 
@@ -49,16 +48,25 @@ const Options = () => {
   };
 
   const handleDeletion = () => {
-    if (deletions.length <= 0) {
+    if (deletions.current.size <= 0) {
       //error
       setError({
         show: true,
         message: 'No has seleccionado ningún registro'
       });
     } else {
+
+      let arr = [];
+
+      for(let value of deletions.current.keys()) {
+        arr.push(value);
+      }
+
+      console.log(arr);
+
       deleteRequest(
         tableLinks[tableName][0],
-        deletions,
+        arr,
         (res) => {
           handleRefresh();
         },
@@ -79,7 +87,7 @@ const Options = () => {
 
   const handleCancel = () => {
     setEditing(false);
-    setDeletions([]);
+    deletions.current.clear();
   };
 
   return (
