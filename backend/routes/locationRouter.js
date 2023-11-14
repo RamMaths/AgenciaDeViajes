@@ -50,6 +50,11 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.deleteCountry
+  )
+  .patch(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.patchCountry
   );
 
 locationRouter

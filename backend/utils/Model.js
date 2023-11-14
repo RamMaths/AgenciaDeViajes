@@ -1,7 +1,8 @@
 class Model {
-  constructor(table, pool) {
+  constructor(table, primary_key, pool) {
     this.table = table;
     this.pool = pool;
+    this.primary_key = primary_key;
   }
 
   async dataTypes() {
@@ -78,6 +79,23 @@ class Model {
     return await this._execute(query);
   };
 
+  async updateAField(data) {
+
+    const query =
+      `
+      UPDATE ${this.table} 
+      SET ${
+        data.type === 'numeric' || data.type === 'integer' ?
+        `${data.field}=${data.value}` :
+        `${data.field}='${data.value}'`
+      }
+      WHERE ${this.primary_key}=${data.id}
+      `
+    ;
+
+    return await this._execute(query);
+  }
+
   async update(identifier, data) {
     let lastItemPosition = 0;
 
@@ -100,11 +118,11 @@ class Model {
     return await this._execute(query);
   }
 
-  async delete(arr, id) {
+  async delete(arr) {
     const query = {
       text: `
         DELETE FROM ${this.table}
-        WHERE ${id} IN (${arr.join(', ')})
+        WHERE ${this.primary_key} IN (${arr.join(', ')})
       `
     }
 
@@ -125,8 +143,7 @@ class Model {
 
   async _execute(query) {
     let results;
-    let client;
-    client = await this.pool.connect();
+    let client = await this.pool.connect();
     const qRes = await client.query(query)
     client.on('error', (err) => {
       client.release();

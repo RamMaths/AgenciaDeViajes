@@ -1,3 +1,6 @@
+//cookies
+import Cookies from 'js-cookie';
+
 // react-bootstrap
 import { 
   Modal,
@@ -12,6 +15,11 @@ import { useEffect } from 'react';
 
 //context
 import { useManagementContext } from './Management';
+import { useGlobalContext } from '../../../App';
+
+//utils
+import { patchRequest } from '../../utils/Utils';
+import DangerAlert from '../../DangerAlert';
 
 const fieldTypes = {
   'integer': 'number',
@@ -30,6 +38,11 @@ const UpdateModal = ({showUpdate, setShowUpdate, updateField}) => {
     setTableDataTypes,
     handleRefresh
   } = useManagementContext();
+
+  const {
+    error,
+    setError
+  } = useGlobalContext();
 
   const handleClose = () => {
     setShowUpdate(false);
@@ -64,7 +77,8 @@ const UpdateModal = ({showUpdate, setShowUpdate, updateField}) => {
       {
         field: updateField.field,
         value: formObj[updateField.field],
-        id: updateField.id
+        id: updateField.id,
+        type: tableDataTypes[updateField.field]
       },
       (res) => {
         handleClose();
@@ -72,6 +86,10 @@ const UpdateModal = ({showUpdate, setShowUpdate, updateField}) => {
       },
       (err) => {
         console.error(err);
+        setError({
+          show: true,
+          message: err.response.data.message
+        });
       },
       {
         'Authorization': `Bearer ${Cookies.get('jwt')}`
@@ -85,6 +103,7 @@ const UpdateModal = ({showUpdate, setShowUpdate, updateField}) => {
         <Modal.Title>Actualiza el campo</Modal.Title>
       </Modal.Header>
       <Modal.Body className='mt-0' style={{marginTop: '0'}}>
+        {error.show && <DangerAlert/>}
         <Form onSubmit={handleSubmit}>
           <Form.Group className='m-3 mb-4' controlId={`${tableName}`}>
             <Row>

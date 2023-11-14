@@ -77,7 +77,7 @@ CREATE TABLE Empresas (
   id_empresa SERIAL,
   --Other attributes
   nombre VARCHAR(50) NOT NULL,
-  logo VARCHAR(200),
+  rfc VARCHAR(13),
   --Constraints
   CONSTRAINT pk_id_empresa PRIMARY KEY (id_empresa)
 );
@@ -87,6 +87,7 @@ CREATE TABLE MediosTransporte (
   id_medio_transporte SERIAL,
   --Other attributes
   nombre VARCHAR(50),
+  asientos INTEGER,
   --Constraints
   CONSTRAINT pk_id_medio_transporte PRIMARY KEY (id_medio_transporte)
 );

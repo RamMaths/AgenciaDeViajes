@@ -33,7 +33,6 @@ const Options = () => {
     deletions,
     handleRefresh
   } = useManagementContext();
-
   
   const {
     error,
@@ -48,6 +47,7 @@ const Options = () => {
   };
 
   const handleDeletion = () => {
+    console.log('hello');
     if (deletions.current.size <= 0) {
       //error
       setError({
@@ -62,11 +62,11 @@ const Options = () => {
         arr.push(value);
       }
 
-      console.log(arr);
-
       deleteRequest(
         tableLinks[tableName][0],
-        arr,
+        {
+          arr
+        },
         (res) => {
           handleRefresh();
         },
@@ -81,13 +81,13 @@ const Options = () => {
           'Authorization': `Bearer ${Cookies.get('jwt')}`
         }
       );
-  }
-
+    }
   };
 
   const handleCancel = () => {
     setEditing(false);
     deletions.current.clear();
+    setError({...error, show: false});
   };
 
   return (

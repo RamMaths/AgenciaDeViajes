@@ -13,6 +13,9 @@ import {
   Container
 } from 'react-bootstrap';
 
+//context
+import { useGlobalContext } from '../../../App';
+
 //my components
 import Options from './Options';
 import ResultTable from './ResultTable';
@@ -23,10 +26,23 @@ const tableLinks = {
   'Paises': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`,
+    false
+  ],
+  'Empresas': [
+    `http://${import.meta.env.VITE_HOST}:3000/api/companies`,
+    `http://${import.meta.env.VITE_HOST}:3000/api/companies/datatypes`,
+    false
+  ],
+  'Medios De Transporte': [
+    `http://${import.meta.env.VITE_HOST}:3000/api/meantransports`,
+    `http://${import.meta.env.VITE_HOST}:3000/api/meantransports/datatypes`,
+    false
   ],
   'Estados': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
-    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`
+    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`,
+    ['Paises'],
+    true
   ]
 };
 
@@ -41,6 +57,10 @@ const Management = () => {
   const deletions = useRef(new Map([]));
   const cannotUpdate = useRef(new Map([]));
   const [tableDataTypes, setTableDataTypes] = useState(null);
+  const { error, setError } = useGlobalContext();
+  const [dependentTable, setDependentTable] = useState(false);
+  const [showDependentTable, setShowDependentTable] = useState(false);
+  const [dependentData, setDependentData] = useState({});
 
   const fetchAndSet = async (url, hook) => {
     getRequest(
@@ -62,11 +82,25 @@ const Management = () => {
   };
 
   const handleTableChange = (e) => {
-    setTableName(e.target.value);
+    setTableName( _ => {
+      const tableName = e.target.value;
+
+      setDependentTable(
+        tableLinks[tableName] ? 
+        tableLinks[tableName][tableLinks[tableName].length - 1] :
+        false
+      );
+
+      return tableName;
+    });
+
     if(e.target.value == 'Ninguna') {
       setEditing(false);
       return;
     }
+    setEditing(false);
+    deletions.current.clear();
+    setError({...error, show: false});
     fetchInfo(tableLinks[e.target.value][0], setTableData);
   };
 
@@ -90,6 +124,9 @@ const Management = () => {
       }
     );
   };
+  const showTable = !dependentTable ?
+    tableName != 'Ninguna' && tableData :
+    false ;
 
   return (
     <ManagementContext.Provider value={{
@@ -108,11 +145,13 @@ const Management = () => {
       cannotUpdate,
       fetchAndSet,
       tableDataTypes,
-      setTableDataTypes
+      setTableDataTypes,
+      dependentTable,
+      setDependentTable
     }}>
       <Container className='' style={{minHeight: '70vh'}}>
         <Options/>
-        { tableName != 'Ninguna' && tableData && <ResultTable table={tableData}/> }
+        { showTable && <ResultTable table={tableData}/> }
       </Container>
     </ManagementContext.Provider>
   );

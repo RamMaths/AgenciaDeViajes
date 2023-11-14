@@ -14,7 +14,6 @@ import { useState } from 'react';
 
 //my components
 import UpdateModal from './UpdateModal';
-import { patchRequest } from '../../utils/Utils';
 
 //css
 import './Management.css';
@@ -37,7 +36,6 @@ const ResultTable = () => {
   const handleUpdate = ({field, value, id}) => {
     setShowUpdate(true);
     setUpdateField({field, value, id});
-    console.log(id);
   };
 
   return (
@@ -55,7 +53,7 @@ const ResultTable = () => {
               )
             })}
             {
-              empty && tableData.map(objField => {
+              empty && tableData.map((objField, i) => {
                 const column = objField.column_name;
                 if(column.startsWith('id') || column.startsWith('_')) cannotUpdate.current.set(i);
                 return <th key={objField.column_name}>

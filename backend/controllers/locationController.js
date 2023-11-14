@@ -69,6 +69,10 @@ exports.createCountry = catchAsync(async (req, res, next) => {
     !req.body.longitud
   ) return next(new AppError('Debes ingresar los datos mencionados', 400));
 
+  if (
+    req.body.nombre.length > 50
+  ) return next(new AppError('Debes proporcionar un nombre menor a 50 carteres', 400));
+
   const result = await CountryModel.create({
     nombre: req.body.nombre,
     latitud: req.body.latitud,
@@ -83,11 +87,30 @@ exports.createCountry = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteCountry = catchAsync(async (req, res, next) => {
-  const result = await CountryModel.delete(req.body, 'id_pais');
+  const result = await CountryModel.delete(req.body.arr);
 
   res.status(200).json({
     status: 'success',
     data: result
+  });
+});
+
+exports.patchCountry = catchAsync(async (req, res, next) => {
+  if(
+    req.body.field === 'nombre' &&
+    req.body.value.length > 50
+  ) return next(new AppError('Debes proporcionar un nombre menor a 50 carteres', 400));
+
+  const result = await CountryModel.updateAField({
+    field: req.body.field,
+    value: req.body.value,
+    id: req.body.id,
+    type: req.body.type
+  });
+
+  res.status(200).json({
+      status: 'success',
+      data: result
   });
 });
 
