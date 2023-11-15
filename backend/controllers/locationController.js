@@ -59,7 +59,22 @@ exports.getStatesDataTypes = catchAsync(async(req, res, next) => {
 
 //countries
 exports.getAllCountries = catchAsync(async (req, res, next) => {
-  getAll(CountryModel, res);
+
+  let empty = undefined;
+  let result = await CountryModel.find({
+    fields: req.query.fields.split(',')
+  });
+
+  if(result.length === 0) {
+    result = await CountryModel.getColumns();
+    empty = true;
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: result,
+    empty
+  });
 });
 
 exports.createCountry = catchAsync(async (req, res, next) => {

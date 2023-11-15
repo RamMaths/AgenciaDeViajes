@@ -26,22 +26,28 @@ const tableLinks = {
   'Paises': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`,
+    'id_pais',
     false
   ],
   'Empresas': [
     `http://${import.meta.env.VITE_HOST}:3000/api/companies`,
     `http://${import.meta.env.VITE_HOST}:3000/api/companies/datatypes`,
+    'id_empresa',
     false
   ],
   'Medios De Transporte': [
     `http://${import.meta.env.VITE_HOST}:3000/api/meantransports`,
     `http://${import.meta.env.VITE_HOST}:3000/api/meantransports/datatypes`,
+    'id_medio_transporte',
     false
   ],
   'Estados': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`,
-    ['Paises'],
+    'id_estado',
+    {
+      'Paises': ['id_pais', 'nombre'],
+    },
     true
   ]
 };
@@ -60,7 +66,7 @@ const Management = () => {
   const { error, setError } = useGlobalContext();
   const [dependentTable, setDependentTable] = useState(false);
   const [showDependentTable, setShowDependentTable] = useState(false);
-  const [dependentData, setDependentData] = useState({});
+  const dependentData = useRef(new Map([]));
 
   const fetchAndSet = async (url, hook) => {
     getRequest(
@@ -147,7 +153,8 @@ const Management = () => {
       tableDataTypes,
       setTableDataTypes,
       dependentTable,
-      setDependentTable
+      setDependentTable,
+      dependentData,
     }}>
       <Container className='' style={{minHeight: '70vh'}}>
         <Options/>

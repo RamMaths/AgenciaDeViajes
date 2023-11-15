@@ -22,12 +22,26 @@ class Model {
         SELECT * 
         FROM ${this.table}
       `;
+    } else if(!fields && filters) {
+      for(const [key, value] of Object.entries(filters)) {
+        conditions.push(`${key}=${value}`);
+      }
+
+      query = {
+        text: `
+        SELECT ${Object.keys(fields).join(', ')}
+        FROM ${this.table} ${this.table.charAt(0)}
+        WHERE ${conditions.join(' AND ')}
+        ${join ? join : ''}
+      `
+      };
+
     } else if(fields && !filters) {
       query = {
         text: `
         SELECT ${fields.join(', ')}
         FROM ${this.table} ${this.table.charAt(0)}
-        ${join}
+        ${join ? join : ''}
         `
       };
     } else {
@@ -42,8 +56,9 @@ class Model {
         SELECT ${Object.keys(fields).join(', ')}
         FROM ${this.table} ${this.table.charAt(0)}
         WHERE ${conditions.join(' AND ')}
-        ${join}
+        ${join ? join : ''}
       `,
+
       values: Object.values(fields)
       };
     }
