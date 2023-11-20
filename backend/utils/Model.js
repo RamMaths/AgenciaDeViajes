@@ -34,8 +34,8 @@ class Model {
         WHERE ${conditions.join(' AND ')}
         ${join ? join : ''}
       `
-      };
 
+      };
     } else if(fields && !filters) {
       query = {
         text: `
@@ -53,14 +53,14 @@ class Model {
 
       query = {
         text: `
-        SELECT ${Object.keys(fields).join(', ')}
+        SELECT ${fields.join(', ')}
         FROM ${this.table} ${this.table.charAt(0)}
-        WHERE ${conditions.join(' AND ')}
         ${join ? join : ''}
+        WHERE ${this.table.charAt(0)}.${conditions.join(' AND ')}
       `,
-
-      values: Object.values(fields)
       };
+
+      console.log(query);
     }
 
     return await this._execute(query);

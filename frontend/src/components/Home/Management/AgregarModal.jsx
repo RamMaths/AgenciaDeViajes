@@ -17,7 +17,6 @@ import {
 import { useManagementContext } from './Management';
 import { useGlobalContext } from '../../../App';
 import { 
-  getRequest,
   postRequest
 } from '../../utils/Utils';
 import DangerAlert from '../../DangerAlert';

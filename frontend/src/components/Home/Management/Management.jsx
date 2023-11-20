@@ -26,28 +26,21 @@ const tableLinks = {
   'Paises': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries/datatypes`,
-    'id_pais',
     false
   ],
   'Empresas': [
     `http://${import.meta.env.VITE_HOST}:3000/api/companies`,
     `http://${import.meta.env.VITE_HOST}:3000/api/companies/datatypes`,
-    'id_empresa',
     false
   ],
   'Medios De Transporte': [
     `http://${import.meta.env.VITE_HOST}:3000/api/meantransports`,
     `http://${import.meta.env.VITE_HOST}:3000/api/meantransports/datatypes`,
-    'id_medio_transporte',
     false
   ],
   'Estados': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`,
-    'id_estado',
-    {
-      'Paises': ['id_pais', 'nombre'],
-    },
     true
   ]
 };
@@ -64,9 +57,6 @@ const Management = () => {
   const cannotUpdate = useRef(new Map([]));
   const [tableDataTypes, setTableDataTypes] = useState(null);
   const { error, setError } = useGlobalContext();
-  const [dependentTable, setDependentTable] = useState(false);
-  const [showDependentTable, setShowDependentTable] = useState(false);
-  const dependentData = useRef(new Map([]));
 
   const fetchAndSet = async (url, hook) => {
     getRequest(
@@ -88,17 +78,7 @@ const Management = () => {
   };
 
   const handleTableChange = (e) => {
-    setTableName( _ => {
-      const tableName = e.target.value;
-
-      setDependentTable(
-        tableLinks[tableName] ? 
-        tableLinks[tableName][tableLinks[tableName].length - 1] :
-        false
-      );
-
-      return tableName;
-    });
+    setTableName(e.target.value);
 
     if(e.target.value == 'Ninguna') {
       setEditing(false);
@@ -130,9 +110,8 @@ const Management = () => {
       }
     );
   };
-  const showTable = !dependentTable ?
-    tableName != 'Ninguna' && tableData :
-    false ;
+
+  console.log(tableName);
 
   return (
     <ManagementContext.Provider value={{
@@ -151,14 +130,15 @@ const Management = () => {
       cannotUpdate,
       fetchAndSet,
       tableDataTypes,
-      setTableDataTypes,
-      dependentTable,
-      setDependentTable,
-      dependentData,
+      setTableDataTypes
     }}>
       <Container className='' style={{minHeight: '70vh'}}>
         <Options/>
-        { showTable && <ResultTable table={tableData}/> }
+        { 
+          tableLinks[tableName] &&
+          !tableLinks[tableName][tableLinks[tableName].length - 1] &&
+          <ResultTable table={tableData}/>
+        }
       </Container>
     </ManagementContext.Provider>
   );

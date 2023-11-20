@@ -35,36 +35,12 @@ const Options = () => {
     tableLinks,
     tableName,
     tableData,
+    setTableData,
     editing,
     setEditing,
     deletions,
-    handleRefresh,
-    dependentTable,
-    dependentData
+    handleRefresh
   } = useManagementContext();
-
-  useEffect(() => {
-    if(dependentTable) {
-      for(const [table, fields] of Object.entries(tableLinks[tableName][tableLinks[tableName].length - 2])) {
-        getRequest(
-          `${tableLinks[table][0]}?fields=${fields.join(',')}`,
-          res => {
-            const newMap = new Map([]);
-            res.data.data.forEach(row => {
-              newMap.set(Object.values(row)[1], Object.values(row)[0]);
-            });
-            dependentData.current.set(table, newMap);
-          },
-          err => {
-            console.error(err);
-          },
-          {
-            'Authorization': `Bearer ${Cookies.get('jwt')}`
-          }
-        );
-      }
-    }
-  }, [dependentTable])
 
   const {
     error,
@@ -72,9 +48,6 @@ const Options = () => {
   } = useGlobalContext();
 
   const [showAgregar, setShowAgregar] = useState(false);
-  const [selectedDependentData, setSelectedDependentData] = useState({});
-
-  const primaryKeys = useRef(new Map([]));
 
   const handleShowAgregar = () => {
     setShowAgregar(true);
@@ -124,31 +97,12 @@ const Options = () => {
     setError({...error, show: false});
   };
 
-  const queryDependentTable = e => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const formObj = Object.fromEntries(formData.entries());
-
-    delete formObj['tabla'];
-
-    const filters = {};
-
-    for(const [key, value] of Object.entries(formObj)) {
-      filters[tableLinks[key][2]] = dependentData.current.get(key).get(value);
-    }
-
-    console.log(filters);
-  };
-
-  console.log(dependentData);
-
   return (
     <div className='mt-3'>
       <AgregarModal showAgregar={showAgregar} setShowAgregar={setShowAgregar}/>
       <Row>
         <Col>
-          <Form id='tables' className='' onSubmit={queryDependentTable}>
+          <Form id='tables' className=''>
             <Form.Group className='' controlId='tableField'>
               <Form.Label>
                 Tabla
@@ -158,28 +112,6 @@ const Options = () => {
                   <option key={table}>{table}</option>
                 ))}
               </Form.Select>
-              {
-                dependentTable && (
-                  <>
-                    {
-                      Array.from(dependentData.current.entries()).map(([table, info]) => (
-                        <div key={table}>
-                          <Form.Label className='mt-2'>
-                            {table}
-                          </Form.Label>
-                          <Form.Select name={table}>
-                            {
-                              Array.from(info.keys()).map(el => (
-                                <option key={el}>{el}</option>
-                              ))
-                            }
-                          </Form.Select>
-                        </div>
-                      ))
-                    }
-                  </>
-                )
-              }
             </Form.Group>
           </Form>
         </Col>
@@ -190,14 +122,6 @@ const Options = () => {
       <Row>
         <Col>
           <div className='d-flex justify-content-start my-3'>
-            {
-              dependentTable && (
-                <Button form='tables' type='submit'className='btn-secondary ms-3'>
-                  <i className='bi bi-search fs-5'></i>
-                </Button>
-              )
-            }
-
             {
               !editing ? 
               <Button className='btn-secondary ms-3 me-3' onClick={() => setEditing(true)}>

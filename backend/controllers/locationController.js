@@ -11,9 +11,22 @@ exports.getAllCities = catchAsync(async(req, res, next) => {
 
 //states
 exports.getAllStates = catchAsync(async(req, res, next) => {
+
+  let filters = {};
+
+  console.log(req.query.id_pais);
+
+  if(req.query.id_pais) {
+    filters.id_pais = req.query.id_pais
+  } else {
+    filters = undefined;
+    return next(new AppError('No has seleccionado un país'), 404);
+  }
+
   let result = await StateModel.find({
-    fields: ['e.id_estado', 'e.nombre', 'p.id_pais', 'p.nombre as _país'],
-    join: ['JOIN paises p ON e.id_pais = p.id_pais']
+    fields: ['e.id_estado', 'e.nombre', 'p.nombre as _Paises'],
+    join: 'JOIN paises p ON e.id_pais = p.id_pais',
+    filters
   });
 
   let empty = false;
@@ -59,10 +72,10 @@ exports.getStatesDataTypes = catchAsync(async(req, res, next) => {
 
 //countries
 exports.getAllCountries = catchAsync(async (req, res, next) => {
-
   let empty = undefined;
+
   let result = await CountryModel.find({
-    fields: req.query.fields.split(',')
+    fields: req.query.fields ? req.query.fields.split(',') : undefined
   });
 
   if(result.length === 0) {
