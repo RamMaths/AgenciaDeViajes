@@ -3,8 +3,8 @@ import Cookies from 'js-cookie';
 //react components
 import { 
   useState,
-  useEffect,
-  useRef,
+  useContext,
+  createContext
 } from 'react';
 
 //bootstrap components
@@ -21,8 +21,7 @@ import DangerAlert from '../../DangerAlert';
 
 //utils
 import { 
-  deleteRequest,
-  getRequest
+  deleteRequest
 } from '../../utils/Utils';
 
 //context
@@ -35,7 +34,6 @@ const Options = () => {
     tableLinks,
     tableName,
     tableData,
-    setTableData,
     editing,
     setEditing,
     deletions,
@@ -97,6 +95,8 @@ const Options = () => {
     setError({...error, show: false});
   };
 
+  console.log();
+
   return (
     <div className='mt-3'>
       <AgregarModal showAgregar={showAgregar} setShowAgregar={setShowAgregar}/>
@@ -117,7 +117,7 @@ const Options = () => {
         </Col>
       </Row>
 
-      { tableName != 'Ninguna' && tableData && (
+      { tableName != 'Ninguna' && tableData && !tableLinks[tableName][tableLinks[tableName].length - 1] && (
 
       <Row>
         <Col>
