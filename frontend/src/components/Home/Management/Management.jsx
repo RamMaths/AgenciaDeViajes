@@ -20,6 +20,7 @@ import { useGlobalContext } from '../../../App';
 import Options from './Options';
 import ResultTable from './ResultTable';
 import { getRequest } from '../../utils/Utils';
+import StatesTable from './ChildTables/StatesTable/StatesTable';
 
 const tableLinks = {
   'Ninguna': null,
@@ -85,9 +86,13 @@ const Management = () => {
       return;
     }
     setEditing(false);
+
     deletions.current.clear();
     setError({...error, show: false});
-    fetchInfo(tableLinks[e.target.value][0], setTableData);
+
+    if(!tableLinks[e.target.value][tableLinks[e.target.value].length - 1]) {
+      fetchInfo(tableLinks[e.target.value][0], setTableData);
+    }
   };
 
   const handleRefresh = () => {
@@ -110,8 +115,6 @@ const Management = () => {
       }
     );
   };
-
-  console.log(tableName);
 
   return (
     <ManagementContext.Provider value={{
@@ -138,6 +141,10 @@ const Management = () => {
           tableLinks[tableName] &&
           !tableLinks[tableName][tableLinks[tableName].length - 1] &&
           <ResultTable table={tableData}/>
+        }
+        {
+          tableName === 'Estados' &&
+          <StatesTable/>
         }
       </Container>
     </ManagementContext.Provider>
