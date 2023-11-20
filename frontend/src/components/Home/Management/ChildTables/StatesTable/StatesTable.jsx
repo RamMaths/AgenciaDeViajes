@@ -1,4 +1,4 @@
-//cookies
+//
 import Cookies from 'js-cookie';
 
 //bootstrap
@@ -6,27 +6,41 @@ import {
   Row,
   Button,
   Col,
-  Form
+  Form,
+  Table
 } from 'react-bootstrap';
 
 //react 
 import { 
   useEffect,
-  useState
+  useState,
+  createContext,
+  useContext
 } from 'react';
 
 //utils
-import { getRequest, deleteRequest } from '../../../../utils/Utils';
+import { 
+  getRequest,
+  deleteRequest,
+  postRequest
+} from '../../../../utils/Utils';
+
+//context
 import { useManagementContext } from '../../Management';
 import { useGlobalContext } from '../../../../../App';
+const StateContext = createContext();
+export const useStateContext = () => useContext(StateContext);
 
-const countriesTableLink = `http://${import.meta.env.VITE_HOST}:3000/api/locations/countries`;
+//my components
+import Checkbox from '../Checkbox';
+import AddState from './AddState';
 
 const StatesTable = () => {
   const {
     editing,
     setEditing,
-    deletions
+    deletions,
+    tableLinks
   } = useManagementContext();
 
   const {
@@ -35,19 +49,20 @@ const StatesTable = () => {
   } = useGlobalContext();
 
   const [countries, setCountries] = useState(null);
-  const [showAgregar, setShowAgregar] = useState(false);
   const [country, setCountry] = useState(null);
-
-  const handleShowAgregar = () => {
-    setShowAgregar(true);
-    setEditing(false);
-  };
+  const [states, setStates] = useState(null);
+  const [addModal, setAddModal] = useState(false);
 
   const handleCancel = () => {
     setEditing(false);
     deletions.current.clear();
     setError({...error, show: false});
   };
+
+  const handleClose = () => {
+    setAddModal(false);
+    setError(err => { return {...err, show: false}});
+  }
 
   const handleDeletion = () => {
     if (deletions.current.size <= 0) {
@@ -88,15 +103,12 @@ const StatesTable = () => {
 
   useEffect(() => {
     getRequest(
-      `${countriesTableLink}?fields=id_pais,nombre`,
+      `${tableLinks['Paises'][0]}?fields=id_pais,nombre`,
       res => {
-
         let obj = {};
         res.data.data.forEach(el => {
           obj[el.nombre] = el.id_pais;
         });
-
-        console.log(obj);
 
         setCountries(obj);
         setCountry(res.data.data[0].nombre)
@@ -110,17 +122,33 @@ const StatesTable = () => {
     );
   }, []);
 
-  console.log(country);
-
   const handleCountryChange = (e) => {
     setCountry(e.target.value);
   };
 
+  useEffect(() => {
+    if(country) {
+      getRequest(
+        `${tableLinks['Estados'][0]}?id_pais=${countries[country]}`,
+        (res) => {
+          setStates(res.data.data);
+        },
+        (err) => {
+          console.error(err);
+        },
+        {
+          'Authorization': `Bearer ${Cookies.get('jwt')}`
+        }
+      );
+    }
+  }, [country]);
+
   return (
-    <div>
+    <StateContext.Provider value={{countries, country, setCountry}}>
+      { addModal && <AddState show={addModal} handleClose={handleClose}/>}
       <Row>
         <Col>
-          <Form id='tables' className='pt-3'>
+          <Form id='paises' className='pt-3'>
             <Form.Group className='' controlId='tableField'>
               { 
                 countries &&
@@ -147,7 +175,7 @@ const StatesTable = () => {
           <div className='d-flex justify-content-start my-3'>
             {
               !editing ? 
-              <Button className='btn-secondary ms-3 me-3' onClick={() => setEditing(true)}>
+              <Button className='btn-secondary me-3' onClick={() => setEditing(true)}>
                 <i className='bi bi-pencil-square fs-5'></i>
               </Button> :
               <Button className='btn-danger d-flex justify-content-center align-items-center ms-3 me-3' onClick={handleCancel}>
@@ -156,13 +184,49 @@ const StatesTable = () => {
             }
 
             {editing && <Button className='btn-danger me-3'><i className='bi bi-file-earmark-x fs-5' onClick={handleDeletion}></i></Button>}
-            {!editing && <Button className='me-3' onClick={handleShowAgregar}><i className='bi bi-file-earmark-plus fs-5'></i></Button>}
+            {!editing && <Button className='me-3' onClick={() => setAddModal(true)}><i className='bi bi-file-earmark-plus fs-5'></i></Button>}
           </div>
         </Col>
       </Row>
 
+      <div>
+        <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
+          <thead>
+            <tr className='align-middle text-center'>
+              <th>Id</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody className='align-middle text-center'>
+            {
+              states && states.length > 0 && states.map((state, i) => {
+                return (
+                  <tr key={state.nombre}>
+                    {
+                      Object.entries(state).map(([field, value], i) => {
+                        if(field === 'id_estado') {
+                          return (<td key={`${field}-${i}`}>{value}</td>);
+                        }
 
-    </div>
+                        if(field === 'nombre') {
+                          return (<td key={`${field}-${i}`}>{value}</td>);
+                        }
+                      })
+                    }
+                    {
+                      editing &&
+                      <td className='d-flex align-items-center justify-content-center' key={`${i}-checkbox`}>
+                        <Checkbox id_element={state.id_estado}/>
+                      </td>
+                    }
+                  </tr>
+                )
+              })
+            }
+          </tbody>
+        </Table>
+      </div>
+    </StateContext.Provider>
   )
 };
 

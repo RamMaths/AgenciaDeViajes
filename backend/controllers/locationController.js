@@ -14,8 +14,6 @@ exports.getAllStates = catchAsync(async(req, res, next) => {
 
   let filters = {};
 
-  console.log(req.query.id_pais);
-
   if(req.query.id_pais) {
     filters.id_pais = req.query.id_pais
   } else {
@@ -24,22 +22,14 @@ exports.getAllStates = catchAsync(async(req, res, next) => {
   }
 
   let result = await StateModel.find({
-    fields: ['e.id_estado', 'e.nombre', 'p.nombre as _Paises'],
+    fields: ['e.id_estado', 'e.nombre', 'p.nombre as Pais'],
     join: 'JOIN paises p ON e.id_pais = p.id_pais',
     filters
   });
 
-  let empty = false;
-
-  if(result.length === 0) {
-    result = await StateModel.getColumns();
-    empty = true;
-  }
-
   res.status(200).json({
     status: 'success',
     data: result,
-    empty
   });
 });
 

@@ -41,7 +41,6 @@ const tableLinks = {
   ],
   'Estados': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/states`,
-    `http://${import.meta.env.VITE_HOST}:3000/api/locations/states/datatypes`,
     true
   ]
 };
