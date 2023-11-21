@@ -50,15 +50,33 @@ exports.createState = catchAsync(async(req, res, next) => {
   });
 });
 
-exports.getStatesDataTypes = catchAsync(async(req, res, next) => {
-  const result = await StateModel.dataTypes();
+exports.deleteState = catchAsync(async (req, res, next) => {
+  const result = await StateModel.delete(req.body.arr);
 
   res.status(200).json({
     status: 'success',
     data: result
-  })
+  });
 });
 
+exports.patchState = catchAsync(async (req, res, next) => {
+  if(
+    req.body.field === 'nombre' &&
+    req.body.value.length > 50
+  ) return next(new AppError('Debes proporcionar un nombre menor a 50 carteres', 400));
+
+  const result = await StateModel.updateAField({
+    field: req.body.field,
+    value: req.body.value,
+    id: req.body.id,
+    type: req.body.type
+  });
+
+  res.status(200).json({
+      status: 'success',
+      data: result
+  });
+});
 
 //countries
 exports.getAllCountries = catchAsync(async (req, res, next) => {

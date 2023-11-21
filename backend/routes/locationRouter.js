@@ -23,6 +23,16 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.createState
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.deleteState
+  )
+  .patch(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.patchState
   );
 
 locationRouter

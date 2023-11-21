@@ -34,6 +34,10 @@ export const useStateContext = () => useContext(StateContext);
 //my components
 import Checkbox from '../Checkbox';
 import AddState from './AddState';
+import UpdateState from './UpdateState';
+
+//css
+import '../ChildTables.css';
 
 const StatesTable = () => {
   const {
@@ -52,6 +56,8 @@ const StatesTable = () => {
   const [country, setCountry] = useState(null);
   const [states, setStates] = useState(null);
   const [addModal, setAddModal] = useState(false);
+  const [updateModal, setUpdateModal] = useState(false);
+  const [updateField, setUpdateField] = useState({});
 
   const handleCancel = () => {
     setEditing(false);
@@ -62,7 +68,29 @@ const StatesTable = () => {
   const handleClose = () => {
     setAddModal(false);
     setError(err => { return {...err, show: false}});
-  }
+  };
+
+  const handleUpdate = (data) => {
+    setUpdateField(data);
+    setUpdateModal(true);
+  };
+
+  const handleRefresh = () => {
+    if(country) {
+      getRequest(
+        `${tableLinks['Estados'][0]}?id_pais=${countries[country]}`,
+        (res) => {
+          setStates(res.data.data);
+        },
+        (err) => {
+          console.error(err);
+        },
+        {
+          'Authorization': `Bearer ${Cookies.get('jwt')}`
+        }
+      );
+    }
+  };
 
   const handleDeletion = () => {
     if (deletions.current.size <= 0) {
@@ -80,12 +108,13 @@ const StatesTable = () => {
       }
 
       deleteRequest(
-        tableLinks[tableName][0],
+        tableLinks['Estados'][0],
         {
           arr
         },
         (res) => {
           handleRefresh();
+          setEditing(false);
         },
         (err) => {
           console.error(err);
@@ -99,6 +128,10 @@ const StatesTable = () => {
         }
       );
     }
+  };
+
+  const handleCountryChange = (e) => {
+    setCountry(e.target.value);
   };
 
   useEffect(() => {
@@ -122,10 +155,6 @@ const StatesTable = () => {
     );
   }, []);
 
-  const handleCountryChange = (e) => {
-    setCountry(e.target.value);
-  };
-
   useEffect(() => {
     if(country) {
       getRequest(
@@ -144,8 +173,19 @@ const StatesTable = () => {
   }, [country]);
 
   return (
-    <StateContext.Provider value={{countries, country, setCountry}}>
-      { addModal && <AddState show={addModal} handleClose={handleClose}/>}
+    <StateContext.Provider value={
+      {
+        countries,
+        country, 
+        setCountry, 
+        handleRefresh,
+        updateModal,
+        setUpdateModal,
+        updateField
+      }
+    }>
+      { addModal && <AddState handleClose={handleClose}/>}
+      { updateModal && <UpdateState show={updateModal} ></UpdateState> }
       <Row>
         <Col>
           <Form id='paises' className='pt-3'>
@@ -195,21 +235,32 @@ const StatesTable = () => {
             <tr className='align-middle text-center'>
               <th>Id</th>
               <th>Estado</th>
+              <th>País</th>
             </tr>
           </thead>
           <tbody className='align-middle text-center'>
             {
               states && states.length > 0 && states.map((state, i) => {
+                console.log(state);
                 return (
                   <tr key={state.nombre}>
                     {
                       Object.entries(state).map(([field, value], i) => {
                         if(field === 'id_estado') {
                           return (<td key={`${field}-${i}`}>{value}</td>);
-                        }
-
-                        if(field === 'nombre') {
-                          return (<td key={`${field}-${i}`}>{value}</td>);
+                        } else {
+                          return (
+                            <td 
+                              className={`${editing ? 'field' : undefined}`}
+                              key={`${field}-${i}`} 
+                              onClick={
+                              editing ?
+                              () => handleUpdate({field, value, id: state.id_estado}) :
+                              undefined
+                            }>
+                              {value}
+                            </td>
+                          );
                         }
                       })
                     }

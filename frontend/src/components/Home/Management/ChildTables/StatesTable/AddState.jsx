@@ -34,7 +34,7 @@ const AddState = ({show, handleClose}) => {
   const {
     countries,
     country,
-    setCountry
+    handleRefresh
   } = useStateContext();
 
   const handleSubmit = e => {
@@ -51,6 +51,7 @@ const AddState = ({show, handleClose}) => {
       },
       res => {
         handleClose();
+        handleRefresh();
       },
       err => {
         console.error(err)

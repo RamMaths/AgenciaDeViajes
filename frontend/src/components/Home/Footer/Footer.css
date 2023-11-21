@@ -1,10 +1,4 @@
 .footer {
-  position: fixed;
-}
-
-@media screen and (max-width: 750px) {
-  .footer {
-    position: relative;
-    bottom: 0;
-  }
+  position: relative;
+  bottom: 0;
 }
