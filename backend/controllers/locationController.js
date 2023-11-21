@@ -6,7 +6,70 @@ const CountryModel = require('../models/CountryModel');
 
 // cities
 exports.getAllCities = catchAsync(async(req, res, next) => {
-  getAll(CityModel, res);
+  let filters = {};
+
+  if(req.query.id_estado) {
+    filters.id_estado = req.query.id_estado
+  } else {
+    filters = undefined;
+    return next(new AppError('No has seleccionado un estado'), 404);
+  }
+
+  let result = await CityModel.find({
+    fields: ['c.id_ciudad', 'c.nombre', 'e.nombre as estado'],
+    join: 'JOIN estados e ON c.id_estado = e.id_estado',
+    filters
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: result,
+  });
+});
+
+exports.createCity = catchAsync(async(req, res, next) => {
+  if(
+    !req.body.id_estado,
+    !req.body.nombre
+  ) return next(new AppError('Debes ingresar los datos mencionados', 400));
+
+  const result = await CityModel.create({
+    id_estado: req.body.id_estado,
+    nombre: req.body.nombre
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: result
+  });
+});
+
+exports.deleteCity = catchAsync(async (req, res, next) => {
+  const result = await CityModel.delete(req.body.arr);
+
+  res.status(200).json({
+    status: 'success',
+    data: result
+  });
+});
+
+exports.patchCity = catchAsync(async (req, res, next) => {
+  if(
+    req.body.field === 'nombre' &&
+    req.body.value.length > 50
+  ) return next(new AppError('Debes proporcionar un nombre menor a 50 carteres', 400));
+
+  const result = await CityModel.updateAField({
+    field: req.body.field,
+    value: req.body.value,
+    id: req.body.id,
+    type: req.body.type
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: result
+  });
 });
 
 //states

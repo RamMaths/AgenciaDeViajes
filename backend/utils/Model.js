@@ -59,8 +59,6 @@ class Model {
         WHERE ${this.table.charAt(0)}.${conditions.join(' AND ')}
       `,
       };
-
-      console.log(query);
     }
 
     return await this._execute(query);

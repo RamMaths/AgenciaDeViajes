@@ -1,6 +1,5 @@
 const express = require('express');
 const locationRouter = express.Router();
-
 const authController = require('../controllers/authController');
 const locationController = require('../controllers/locationController');
 
@@ -10,6 +9,21 @@ locationRouter
     authController.protect,
     authController.restrictTo(2),
     locationController.getAllCities
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.createCity
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.deleteCity
+  )
+  .patch(
+    authController.protect,
+    authController.restrictTo(2),
+    locationController.patchCity
   );
 
 locationRouter

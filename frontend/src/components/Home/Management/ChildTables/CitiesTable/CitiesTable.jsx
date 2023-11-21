@@ -28,18 +28,18 @@ import {
 //context
 import { useManagementContext } from '../../Management';
 import { useGlobalContext } from '../../../../../App';
-const StateContext = createContext();
-export const useStateContext = () => useContext(StateContext);
+const CityContext = createContext();
+export const useCityContext = () => useContext(CityContext);
 
 //my components
 import Checkbox from '../Checkbox';
-import AddState from './AddState';
-import UpdateState from './UpdateState';
+import AddCity from './AddCity';
+import UpdateCity from './UpdateCity';
 
 //css
 import '../ChildTables.css';
 
-const StatesTable = () => {
+const CitiesTable = () => {
   const {
     editing,
     setEditing,
@@ -55,6 +55,8 @@ const StatesTable = () => {
   const [countries, setCountries] = useState(null);
   const [country, setCountry] = useState(null);
   const [states, setStates] = useState(null);
+  const [state, setState] = useState(null);
+  const [cities, setCities] = useState(null);
   const [addModal, setAddModal] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
   const [updateField, setUpdateField] = useState({});
@@ -78,9 +80,9 @@ const StatesTable = () => {
   const handleRefresh = () => {
     if(country) {
       getRequest(
-        `${tableLinks['Estados'][0]}?id_pais=${countries[country]}`,
+        `${tableLinks['Ciudades'][0]}?id_estado=${states[state]}`,
         (res) => {
-          setStates(res.data.data);
+          setCities(res.data.data);
         },
         (err) => {
           console.error(err);
@@ -108,7 +110,7 @@ const StatesTable = () => {
       }
 
       deleteRequest(
-        tableLinks['Estados'][0],
+        tableLinks['Ciudades'][0],
         {
           arr
         },
@@ -132,6 +134,10 @@ const StatesTable = () => {
 
   const handleCountryChange = (e) => {
     setCountry(e.target.value);
+  };
+
+  const handleStateChange = (e) => {
+    setState(e.target.value);
   };
 
   useEffect(() => {
@@ -160,7 +166,13 @@ const StatesTable = () => {
       getRequest(
         `${tableLinks['Estados'][0]}?id_pais=${countries[country]}`,
         (res) => {
-          setStates(res.data.data);
+          let obj = {};
+          res.data.data.forEach(el => {
+            obj[el.nombre] = el.id_estado;
+          });
+
+          setStates(obj);
+          setState(res.data.data[0].nombre)
         },
         (err) => {
           console.error(err);
@@ -172,20 +184,42 @@ const StatesTable = () => {
     }
   }, [country]);
 
+  console.log(addModal);
+
+  useEffect(() => {
+    if(state) {
+      getRequest(
+        `${tableLinks['Ciudades'][0]}?id_estado=${states[state]}`,
+        (res) => {
+          setCities(res.data.data);
+        },
+        (err) => {
+          console.error(err);
+        },
+        {
+          'Authorization': `Bearer ${Cookies.get('jwt')}`
+        }
+      );
+    }
+  }, [state]);
+
   return (
-    <StateContext.Provider value={
+    <CityContext.Provider value={
       {
         countries,
         country, 
-        setCountry, 
+        setCountry,
+        states,
+        state,
+        setState,
         handleRefresh,
         updateModal,
         setUpdateModal,
         updateField
       }
     }>
-      { addModal && <AddState show={addModal} handleClose={handleClose}/>}
-      { updateModal && <UpdateState show={updateModal} ></UpdateState> }
+      { addModal && <AddCity show={addModal} handleClose={handleClose}/>}
+      { updateModal && <UpdateCity show={updateModal} ></UpdateCity> }
       <Row>
         <Col>
           <Form id='paises' className='pt-3'>
@@ -199,7 +233,22 @@ const StatesTable = () => {
                   <Form.Select name='pais' onChange={handleCountryChange}>
                     {
                       Array.from(Object.entries(countries)).map(([pais, id]) => {
-                        return <option key={id}>{pais}</option>
+                        return <option key={`pais-${id}`}>{pais}</option>
+                      })
+                    }
+                  </Form.Select>
+                </>
+              }
+              { 
+                states &&
+                <>
+                  <Form.Label className='pt-3'>
+                    Estado
+                  </Form.Label>
+                  <Form.Select name='estado' onChange={handleStateChange}>
+                    {
+                      Array.from(Object.entries(states)).map(([estado, id]) => {
+                        return <option key={`estado-${id}`}>{estado}</option>
                       })
                     }
                   </Form.Select>
@@ -218,7 +267,7 @@ const StatesTable = () => {
               <Button className='btn-secondary me-3' onClick={() => setEditing(true)}>
                 <i className='bi bi-pencil-square fs-5'></i>
               </Button> :
-              <Button className='btn-danger d-flex justify-content-center align-items-center ms-3 me-3' onClick={handleCancel}>
+              <Button className='btn-danger d-flex justify-content-center align-items-center me-3' onClick={handleCancel}>
                 <i className='bi bi-x-lg fs-5'></i>
               </Button>
             }
@@ -234,18 +283,18 @@ const StatesTable = () => {
           <thead>
             <tr className='align-middle text-center'>
               <th>Id</th>
+              <th>Ciudad</th>
               <th>Estado</th>
-              <th>País</th>
             </tr>
           </thead>
           <tbody className='align-middle text-center'>
             {
-              states && states.length > 0 && states.map((state, i) => {
-                console.log(state);
+              cities && cities.length > 0 && cities.map((city, i) => {
+                console.log(city);
                 return (
-                  <tr key={state.nombre}>
+                  <tr key={city.nombre}>
                     {
-                      Object.entries(state).map(([field, value], i) => {
+                      Object.entries(city).map(([field, value], i) => {
                         if(field === 'id_estado') {
                           return (<td key={`${field}-${i}`}>{value}</td>);
                         } else {
@@ -255,7 +304,7 @@ const StatesTable = () => {
                               key={`${field}-${i}`} 
                               onClick={
                               editing ?
-                              () => handleUpdate({field, value, id: state.id_estado}) :
+                              () => handleUpdate({field, value, id: city.id_ciudad}) :
                               undefined
                             }>
                               {value}
@@ -267,7 +316,7 @@ const StatesTable = () => {
                     {
                       editing &&
                       <td className='d-flex align-items-center justify-content-center' key={`${i}-checkbox`}>
-                        <Checkbox id_element={state.id_estado}/>
+                        <Checkbox id_element={city.id_ciudad}/>
                       </td>
                     }
                   </tr>
@@ -277,8 +326,8 @@ const StatesTable = () => {
           </tbody>
         </Table>
       </div>
-    </StateContext.Provider>
+    </CityContext.Provider>
   )
 };
 
-export default StatesTable;
+export default CitiesTable;
