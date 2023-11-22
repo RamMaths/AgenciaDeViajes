@@ -139,7 +139,7 @@ const Options = () => {
       </Row>
       )}
       <div className='w-100'>
-        {error.show && <DangerAlert/>}
+        {tableLinks[tableName] && !(tableLinks[tableName][tableLinks[tableName].length - 1]) && error.show && <DangerAlert/>}
       </div>
     </div>
   );
