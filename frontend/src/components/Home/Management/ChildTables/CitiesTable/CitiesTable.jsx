@@ -35,6 +35,7 @@ export const useCityContext = () => useContext(CityContext);
 import Checkbox from '../Checkbox';
 import AddCity from './AddCity';
 import UpdateCity from './UpdateCity';
+import DangerAlert from '../../../../DangerAlert';
 
 //css
 import '../ChildTables.css';
@@ -184,8 +185,6 @@ const CitiesTable = () => {
     }
   }, [country]);
 
-  console.log(addModal);
-
   useEffect(() => {
     if(state) {
       getRequest(
@@ -277,6 +276,8 @@ const CitiesTable = () => {
           </div>
         </Col>
       </Row>
+
+      {error.show && <DangerAlert/>}
 
       <div>
         <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
