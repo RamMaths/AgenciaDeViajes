@@ -27,12 +27,14 @@ const userRouter = require('./routes/userRouter');
 const locationRouter = require('./routes/locationRouter');
 const companyRouter = require('./routes/companyRouter');
 const meanTransportRouter = require('./routes/meanTransportRouter');
+const hotelRouter = require('./routes/hotelRouter');
 
 //mounting routes
 app.use('/api/users', userRouter);
 app.use('/api/locations', locationRouter);
 app.use('/api/companies', companyRouter);
 app.use('/api/meantransports', meanTransportRouter);
+app.use('/api/hotels/', hotelRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`No se puede encontrar la ruta`, 404));

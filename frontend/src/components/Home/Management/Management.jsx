@@ -22,6 +22,7 @@ import ResultTable from './ResultTable';
 import { getRequest } from '../../utils/Utils';
 import StatesTable from './ChildTables/StatesTable/StatesTable';
 import CitiesTable from './ChildTables/CitiesTable/CitiesTable';
+import HotelsTable from './ChildTables/HotelsTable/HotelsTable';
 
 const tableLinks = {
   'Ninguna': null,
@@ -46,6 +47,10 @@ const tableLinks = {
   ],
   'Ciudades': [
     `http://${import.meta.env.VITE_HOST}:3000/api/locations/cities`,
+    true
+  ],
+  'Hoteles': [
+    `http://${import.meta.env.VITE_HOST}:3000/api/hotels`,
     true
   ]
 };
@@ -153,6 +158,10 @@ const Management = () => {
         {
           tableName === 'Ciudades' &&
           <CitiesTable/>
+        }
+        {
+          tableName === 'Hoteles' &&
+          <HotelsTable/>
         }
       </Container>
     </ManagementContext.Provider>
