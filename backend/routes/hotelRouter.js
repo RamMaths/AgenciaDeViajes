@@ -26,4 +26,27 @@ hotelRouter
     hotelController.patchHotel
   );
 
+hotelRouter
+  .route('/rooms')
+  .get(
+    authController.protect,
+    authController.restrictTo(2),
+    hotelController.getAllRooms
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo(2),
+    hotelController.createRoom
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo(2),
+    hotelController.deleteRoom
+  )
+  .patch(
+    authController.protect,
+    authController.restrictTo(2),
+    hotelController.patchRoom
+  );
+
 module.exports = hotelRouter;
