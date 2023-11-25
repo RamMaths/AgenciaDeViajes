@@ -4,8 +4,7 @@ import { useManagementContext } from '../Management';
 
 const Checkbox = ({id_element}) => {
   const {
-    deletions,
-    setDeletions
+    deletions
   } = useManagementContext();
 
   const handleChange = (event) => {

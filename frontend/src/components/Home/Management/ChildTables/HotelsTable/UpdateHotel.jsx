@@ -147,7 +147,7 @@ const UpdateState = () => {
                         cities &&
                         <>
                           <Form.Label>
-                            Estado
+                            Ciudad
                           </Form.Label>
                           <Form.Select name='ciudad' onChange={handleStateChange}>
                             {

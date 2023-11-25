@@ -100,7 +100,7 @@ exports.getAllRooms = catchAsync(async(req, res, next) => {
   }
 
   let result = await RoomModel.find({
-    fields: ['ha.id_habitacion', 'ha.capacidad', 'h.nombre'],
+    fields: ['ha.id_habitacion', 'ha.numero', 'ha.capacidad', 'h.nombre as hotel'],
     join: 'JOIN hoteles h ON ha.id_hotel = h.id_hotel',
     filters
   });
@@ -114,13 +114,14 @@ exports.getAllRooms = catchAsync(async(req, res, next) => {
 exports.createRoom = catchAsync(async(req, res, next) => {
   if(
     !req.body.capacidad,
+    !req.body.numero,
     !req.body.id_hotel
   ) return next(new AppError('Debes ingresar los datos mencionados', 400));
 
   const result = await RoomModel.create({
-    id_ciudad: req.body.id_ciudad,
-    nombre: req.body.nombre,
-    direccion: req.body.direccion
+    id_hotel: req.body.id_hotel,
+    numero: req.body.numero,
+    capacidad: req.body.capacidad
   });
 
   res.status(200).json({
@@ -130,6 +131,8 @@ exports.createRoom = catchAsync(async(req, res, next) => {
 });
 
 exports.deleteRoom = catchAsync(async (req, res, next) => {
+  if(req.body.arr.length < 1) return next(new AppError('No has seleccionado ningún registro'), 400);
+
   const result = await RoomModel.delete(req.body.arr);
 
   res.status(200).json({

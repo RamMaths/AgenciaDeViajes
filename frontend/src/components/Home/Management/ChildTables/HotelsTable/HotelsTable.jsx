@@ -310,7 +310,16 @@ const HotelsTable = () => {
           <div className='d-flex justify-content-start my-3'>
             {
               !editing ? 
-              <Button className='btn-secondary me-3' onClick={() => setEditing(true)}>
+              <Button className='btn-secondary me-3' onClick={() => {
+                if(Object.keys(cities).length === 0) {
+                  setError({
+                    show: true,
+                    message: 'No has seleccionado una ciudad'
+                  });
+                } else {
+                  setEditing(true);
+                }
+              }}>
                 <i className='bi bi-pencil-square fs-5'></i>
               </Button> :
               <Button className='btn-danger d-flex justify-content-center align-items-center me-3' onClick={handleCancel}>
@@ -319,7 +328,16 @@ const HotelsTable = () => {
             }
 
             {editing && <Button className='btn-danger me-3'><i className='bi bi-file-earmark-x fs-5' onClick={handleDeletion}></i></Button>}
-            {!editing && <Button className='me-3' onClick={() => setAddModal(true)}><i className='bi bi-file-earmark-plus fs-5'></i></Button>}
+            {!editing && <Button className='me-3' onClick={() => {
+                if(Object.keys(cities).length === 0) {
+                  setError({
+                    show: true,
+                    message: 'No has seleccionado una ciudad'
+                  });
+                } else {
+                  setAddModal(true);
+                }
+            }}><i className='bi bi-file-earmark-plus fs-5'></i></Button>}
           </div>
         </Col>
       </Row>
