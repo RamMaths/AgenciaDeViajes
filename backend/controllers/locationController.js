@@ -163,9 +163,7 @@ exports.getAllCountries = catchAsync(async (req, res, next) => {
 
 exports.createCountry = catchAsync(async (req, res, next) => {
   if(
-    !req.body.nombre ||
-    !req.body.latitud ||
-    !req.body.longitud
+    !req.body.nombre
   ) return next(new AppError('Debes ingresar los datos mencionados', 400));
 
   if (
@@ -174,8 +172,6 @@ exports.createCountry = catchAsync(async (req, res, next) => {
 
   const result = await CountryModel.create({
     nombre: req.body.nombre,
-    latitud: req.body.latitud,
-    longitud: req.body.longitud,
     zoom: req.body.zoom
   });
 

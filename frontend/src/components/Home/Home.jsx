@@ -13,6 +13,8 @@ import { useGlobalContext } from '../../App';
 const Home = () => {
   const { user } = useGlobalContext();
 
+  console.log(user.id_usuario);
+
   return (
     <Container className='text-secondary' style={{minHeight: '65vh'}}>
       <h1 className='mt-5'>Hola, {user.nombre}</h1>

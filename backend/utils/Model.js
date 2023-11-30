@@ -3,18 +3,28 @@ class Model {
     this.table = table;
     this.pool = pool;
     this.primary_key = primary_key;
+    this.transaction_mode = false;
   }
 
-  async dataTypes() {
+  transaction_on() {
+    this.transaction_mode = true;
+  }
+
+  transaction_off() {
+    this.transaction_mode = false;
+  }
+
+  async dataTypes(client) {
     const query = `
       SELECT column_name, data_type FROM information_schema.columns
       WHERE table_name='${this.table}';
     `;
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async find({fields, filters, join}) {
+  async find({fields, filters, join}, client) {
     let query = '';
 
     if(!fields && !filters) {
@@ -61,10 +71,11 @@ class Model {
       };
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async findOne(identifier, data) {
+  async findOne(identifier, data, client) {
     const query = {
       text: `
         SELECT ${data.join(', ')} 
@@ -74,10 +85,11 @@ class Model {
       values: [Object.values(identifier)[0]]
     };
     
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async create(obj) {
+  async create(obj, client) {
     const query = {
       text: `
         INSERT INTO ${this.table} (
@@ -89,10 +101,11 @@ class Model {
       values: Object.values(obj)
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   };
 
-  async updateAField(data) {
+  async updateAField(data, client) {
 
     const query =
       `
@@ -106,10 +119,11 @@ class Model {
       `
     ;
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async update(identifier, data) {
+  async update(identifier, data, client) {
     let lastItemPosition = 0;
 
     const values = Object.keys(data).map(
@@ -128,7 +142,8 @@ class Model {
       values: [...Object.values(data), Object.values(identifier)[0]]
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
   async delete(arr) {
@@ -139,33 +154,47 @@ class Model {
       `
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async getColumns() {
+  async getColumns(client) {
     const query = `
       SELECT column_name 
       FROM information_schema.columns
       WHERE table_name='${this.table}';
     `;
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
   //private methods
 
-  async _execute(query) {
-    let results;
-    let client = await this.pool.connect();
-    const qRes = await client.query(query)
-    client.on('error', (err) => {
+  async _execute(query, client) {
+    if(!this.transaction_mode) {
+      let results;
+      let client = await this.pool.connect();
+      const qRes = await client.query(query)
+      client.on('error', (err) => {
+        client.release();
+        throw err;
+      });
+      results = qRes.rows;
       client.release();
-      throw err;
-    });
-    results = qRes.rows;
-    client.release();
+      return results;
+    } else {
+      const qRes = await client.query(query)
+      client.on('error', (err) => {
+        client.release();
+        throw err;
+      });
+      let results = qRes.rows;
 
-    return results;
+      this.transaction_off();
+
+      return results;
+    }
   }
 }
 
