@@ -10,10 +10,13 @@ import {
 //context
 import { useGlobalContext } from '../../App';
 
+//router
+import { useNavigate } from 'react-router-dom';
+
 const Home = () => {
   const { user } = useGlobalContext();
 
-  console.log(user.id_usuario);
+  const navigate = useNavigate();
 
   return (
     <Container className='text-secondary' style={{minHeight: '65vh'}}>
@@ -21,7 +24,7 @@ const Home = () => {
       <p className='mb-0'>Tus viajes agendados son: </p>
       <div className='d-flex flex-column justify-content-center align-items-center'>
         <div className='d-flex justify-content-end align-items-center w-100 m-3'>
-          <Button className='m-1'>Agregar <i className='bi bi-plus-square-fill fs-6 ms-1'></i></Button>
+          <Button className='m-1' onClick={() => navigate('/home/newtravel')}>Agregar <i className='bi bi-plus-square-fill fs-6 ms-1'></i></Button>
           <Button className='m-1 btn-secondary'>Editar <i className='bi bi-pencil-square fs-6 ms-1'></i></Button>
         </div>
         <Table className='shadow-sm' striped bordered hover>

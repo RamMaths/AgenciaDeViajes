@@ -14,6 +14,7 @@ import Login from './components/Public/Auth/Login';
 import Signup from './components/Public/Auth/Signup';
 import HomeRoot from './components/Home/HomeRoot';
 import Management from './components/Home/Management/Management';
+import NewTravel from './components/Home/NewTravel/NewTravel';
 
 //Global Context
 const GlobalContext = createContext();
@@ -55,6 +56,10 @@ const App = () => {
         {
           path: '/home/management',
           element: <Management/>
+        },
+        {
+          path: '/home/newtravel',
+          element: <NewTravel/>
         }
       ],
     }

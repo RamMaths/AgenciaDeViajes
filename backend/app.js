@@ -29,9 +29,11 @@ const companyRouter = require('./routes/companyRouter');
 const meanTransportRouter = require('./routes/meanTransportRouter');
 const hotelRouter = require('./routes/hotelRouter');
 const travelRouter = require('./routes/travelRouter');
+const sexRouter = require('./routes/sexRouter');
 
 //mounting routes
 app.use('/api/users', userRouter);
+app.use('/api/sexs', sexRouter);
 app.use('/api/locations', locationRouter);
 app.use('/api/companies', companyRouter);
 app.use('/api/meantransports', meanTransportRouter);

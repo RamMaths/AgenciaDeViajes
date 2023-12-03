@@ -59,7 +59,12 @@ exports.login = catchAsync(async (req, res, next) => {
 
   //sending the token after each validation step
   const token = signToken(usuario.id_usuario);
+
   delete usuario.contrasena;
+  delete usuario.fecha_nac;
+  delete usuario.telefono;
+  delete usuario.id_sexo;
+
   sendToken(token, 200, res, usuario);
 });
 

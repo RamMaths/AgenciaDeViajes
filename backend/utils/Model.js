@@ -146,7 +146,7 @@ class Model {
     return await this._execute(query, client);
   }
 
-  async delete(arr) {
+  async delete(arr, client) {
     const query = {
       text: `
         DELETE FROM ${this.table}
