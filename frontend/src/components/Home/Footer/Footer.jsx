@@ -1,6 +1,8 @@
 //router componetns
 import { Link, useLocation } from 'react-router-dom';
 
+import './Footer.css';
+
 const Footer = () => {
   const location = useLocation();
 
@@ -15,9 +17,12 @@ const Footer = () => {
       py-4
       px-5
       footer
-      fixed-bottom`}
+      bg-white
+      fixed-bottom
+      `}
       style={{
-        boxShadow: '0px -4px 8px -2px #bababa'
+        boxShadow: '0px -4px 8px -2px #bababa',
+        maxHeight: '8rem'
       }}>
       <div className='col-md-4 d-flex justify-content-start align-items-center'>
         <span className='text-muted align-middle'>© 2023 Ramsés Mata</span>

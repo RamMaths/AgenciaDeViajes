@@ -19,7 +19,7 @@ CREATE TABLE Estados (
   id_pais INTEGER,
   --Constraints
   CONSTRAINT pk_id_estado PRIMARY KEY (id_estado),
-  CONSTRAINT fk_id_pais FOREIGN KEY (id_pais) REFERENCES Paises(id_pais) ON DELETE CASCADE
+  CONSTRAINT fk_id_pais FOREIGN KEY (id_pais) REFERENCES Paises(id_pais) ON DELETE RESTRICT
 );
 
 CREATE TABLE Ciudades (
@@ -33,7 +33,7 @@ CREATE TABLE Ciudades (
   id_estado INTEGER,
   --Constraints
   CONSTRAINT pk_id_ciudad PRIMARY KEY (id_ciudad),
-  CONSTRAINT fk_id_estado FOREIGN KEY (id_estado) REFERENCES Estados(id_estado) ON DELETE CASCADE
+  CONSTRAINT fk_id_estado FOREIGN KEY (id_estado) REFERENCES Estados(id_estado) ON DELETE RESTRICT
 );
 
 CREATE TABLE Roles (
@@ -77,7 +77,7 @@ CREATE TABLE Empresas (
   id_empresa SERIAL,
   --Other attributes
   nombre VARCHAR(50) NOT NULL,
-  logo VARCHAR(200),
+  rfc VARCHAR(13),
   --Constraints
   CONSTRAINT pk_id_empresa PRIMARY KEY (id_empresa)
 );
@@ -87,49 +87,22 @@ CREATE TABLE MediosTransporte (
   id_medio_transporte SERIAL,
   --Other attributes
   nombre VARCHAR(50),
+  asientos INTEGER,
   --Constraints
   CONSTRAINT pk_id_medio_transporte PRIMARY KEY (id_medio_transporte)
 );
 
-CREATE TABLE Transportes (
-  --primary key
-  id_transporte SERIAL,
-  --Foreign keys
-  id_empresa INTEGER,
-  id_medio_transporte INTEGER,
-  --Constraints
-  CONSTRAINT pk_id_transporte PRIMARY KEY (id_transporte),
-  CONSTRAINT fk_id_empresa FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa) ON DELETE CASCADE,
-  CONSTRAINT fk_id_medio_transporte FOREIGN KEY (id_medio_transporte) REFERENCES MediosTransporte(id_medio_transporte) ON DELETE CASCADE
-);
-
-CREATE TABLE Viajes (
-  --primary key
-  id_viaje SERIAL,
-  --Foreign keys
-  id_usuario INTEGER,
-  --Constraints
-  CONSTRAINT pk_id_viaje PRIMARY KEY (id_viaje),
-  CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE
-);
-
-CREATE TABLE Destinos (
-  --primary key
-  id_destino SERIAL,
-  --Other attributes
-  fehca_salida DATE,
-  fecha_llegada DATE,
-  --Foreign keys
-  id_origen INTEGER,
-  id_destino_final INTEGER,
-  id_transporte INTEGER,
-  id_viaje INTEGER,
-  --Constraints
-  CONSTRAINT pk_id_destino PRIMARY KEY (id_destino),
-  CONSTRAINT fk_id_origen FOREIGN KEY (id_origen) REFERENCES Ciudades(id_ciudad) ON DELETE CASCADE,
-  CONSTRAINT fk_id_destino_final FOREIGN KEY (id_destino_final) REFERENCES Ciudades(id_ciudad) ON DELETE CASCADE,
-  CONSTRAINT fk_id_transporte FOREIGN KEY (id_transporte) REFERENCES Transportes(id_transporte) ON DELETE CASCADE
-);
+--CREATE TABLE Transportes (
+--  --primary key
+--  id_transporte SERIAL,
+--  --Foreign keys
+--  id_empresa INTEGER,
+--  id_medio_transporte INTEGER,
+--  --Constraints
+--  CONSTRAINT pk_id_transporte PRIMARY KEY (id_transporte),
+--  CONSTRAINT fk_id_empresa FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa) ON DELETE RESTRICT,
+--  CONSTRAINT fk_id_medio_transporte FOREIGN KEY (id_medio_transporte) REFERENCES MediosTransporte(id_medio_transporte) ON DELETE RESTRICT
+--);
 
 CREATE TABLE Hoteles (
   --primary key
@@ -141,8 +114,8 @@ CREATE TABLE Hoteles (
   id_empresa INTEGER,
   --Constraints
   CONSTRAINT pk_id_hotel PRIMARY KEY (id_hotel),
-  CONSTRAINT fk_id_ciudad FOREIGN KEY (id_ciudad) REFERENCES Ciudades(id_ciudad) ON DELETE CASCADE,
-  CONSTRAINT fk_id_empresa FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa) ON DELETE CASCADE
+  CONSTRAINT fk_id_ciudad FOREIGN KEY (id_ciudad) REFERENCES Ciudades(id_ciudad) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_empresa FOREIGN KEY (id_empresa) REFERENCES Empresas(id_empresa) ON DELETE RESTRICT
 );
 
 CREATE TABLE Habitaciones (
@@ -154,7 +127,32 @@ CREATE TABLE Habitaciones (
   id_hotel INTEGER,
   --Constraints
   CONSTRAINT pk_id_habitacion PRIMARY KEY (id_habitacion),
-  CONSTRAINT fk_id_hotel FOREIGN KEY (id_hotel) REFERENCES Hoteles(id_hotel) ON DELETE CASCADE
+  CONSTRAINT fk_id_hotel FOREIGN KEY (id_hotel) REFERENCES Hoteles(id_hotel) ON DELETE RESTRICT
+);
+
+CREATE TABLE Itinerarios (
+  id_itinerario SERIAL,
+  id_usuario INTEGER,
+  CONSTRAINT pk_id_itinerario PRIMARY KEY (id_itinerario),
+  CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE RESTRICT
+);
+
+CREATE TABLE Viajes (
+  --primary key
+  id_viaje SERIAL,
+  --Other attributes
+  fehca_salida DATE,
+  --Foreign keys
+  id_origen INTEGER,
+  id_destino INTEGER,
+  id_medio_transporte INTEGER,
+  id_itinerario INTEGER,
+  --Constraints
+  CONSTRAINT pk_id_viaje PRIMARY KEY (id_viaje),
+  CONSTRAINT fk_id_origen FOREIGN KEY (id_origen) REFERENCES Ciudades(id_ciudad) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_destino FOREIGN KEY (id_destino) REFERENCES Ciudades(id_ciudad) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_medio_transporte FOREIGN KEY (id_medio_transporte) REFERENCES MediosTransporte(id_medio_transporte) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_itinerario FOREIGN KEY (id_itinerario) REFERENCES Itinerarios(id_itinerario) ON DELETE RESTRICT
 );
 
 CREATE TABLE Reservaciones (
@@ -163,30 +161,31 @@ CREATE TABLE Reservaciones (
   --Other attributes
   dias INTEGER,
   fecha_inicio DATE,
+  fecha_fin DATE,
   --Foreign keys
   id_usuario INTEGER,
   id_habitacion INTEGER,
-  id_destino INTEGER,
+  id_itinerario INTEGER,
   --Constraints
   CONSTRAINT pk_id_reservacion PRIMARY KEY (id_reservacion),
-  CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE,
-  CONSTRAINT fk_id_habitacion FOREIGN KEY (id_habitacion) REFERENCES Habitaciones(id_habitacion) ON DELETE CASCADE,
-  CONSTRAINT fk_id_destino FOREIGN KEY (id_destino) REFERENCES Destinos(id_destino) ON DELETE CASCADE
+  CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_habitacion FOREIGN KEY (id_habitacion) REFERENCES Habitaciones(id_habitacion) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_itinerario FOREIGN KEY (id_itinerario) REFERENCES Itinerarios(id_itinerario) ON DELETE RESTRICT
 );
 
-CREATE TABLE Acompanantes (
+CREATE TABLE Personas (
   --primary key
-  id_acompanante SERIAL,
+  id_persona SERIAL,
   --Other attributes
   nombre VARCHAR(50),
   paterno VARCHAR(50),
   materno VARCHAR(50),
   fecha_nac DATE,
   --Foreign keys
-  id_viaje INTEGER,
   id_sexo INTEGER,
+  id_itinerario INTEGER,
   --Constraints
-  CONSTRAINT pk_id_acompanante PRIMARY KEY (id_acompanante),
-  CONSTRAINT fk_id_viaje FOREIGN KEY (id_viaje) REFERENCES Viajes(id_viaje) ON DELETE CASCADE,
-  CONSTRAINT fk_id_sexo FOREIGN KEY (id_sexo) REFERENCES Sexos(id_sexo)
+  CONSTRAINT pk_id_persona PRIMARY KEY (id_persona),
+  CONSTRAINT fk_id_sexo FOREIGN KEY (id_sexo) REFERENCES Sexos(id_sexo) ON DELETE RESTRICT,
+  CONSTRAINT fk_id_itinerario FOREIGN KEY (id_itinerario) REFERENCES Itinerarios(id_itinerario) ON DELETE RESTRICT
 );

@@ -4,6 +4,7 @@ const handleEmailRepetition = () => new AppError('Ya tenemos una cuenta registra
 const handleCountryRepetition = () => new AppError('Ya existe un País con ese nombre', 400);
 const handleMalformedJWT = () => new AppError('Usaste un Json Web Token mal formado.', 401);
 const handleJWTExpiredError = () => new AppError('Tu sesión ha expirado. Por favor inicia sesión de nuevo', 401);
+const handleStillReferencedError = () => new AppError('Otra información depende de esta que deseas borrar', 400);
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -38,6 +39,8 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'internal error';
 
+  console.log(err);
+
   if(process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if(process.env.NODE_ENV === 'production') {
@@ -46,6 +49,7 @@ module.exports = (err, req, res, next) => {
     if(error.constraint === 'paises_nombre_key') error = handleCountryRepetition();
     if(error.name === 'JsonWebTokenError') error = handleMalformedJWT();
     if(error.name === 'TokenExpiredError') error = handleJWTExpiredError();
+    if(error.code === '23503') error = handleStillReferencedError();
 
     sendErrorProd(error, res);
   }

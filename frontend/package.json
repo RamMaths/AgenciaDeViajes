@@ -6,7 +6,7 @@
   "proxy": "http://localhost:3000",
   "scripts": {
     "dev": "vite",
-    "host": "VITE_HOST=172.20.10.2 vite --host 172.20.10.2",
+    "host": "VITE_HOST=10.0.42.246  vite --host 10.0.42.246",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -20,6 +20,7 @@
     "match-sorter": "~6.3.1",
     "react": "~18.2.0",
     "react-bootstrap": "~2.8.0",
+    "react-bootstrap-daterangepicker": "^8.0.0",
     "react-dom": "~18.2.0",
     "react-router-dom": "~6.15.0",
     "sort-by": "~0.0.2"

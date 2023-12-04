@@ -17,29 +17,9 @@ import {
 import { useManagementContext } from './Management';
 import { useGlobalContext } from '../../../App';
 import { 
-  getRequest,
   postRequest
 } from '../../utils/Utils';
 import DangerAlert from '../../DangerAlert';
-
-const fetchAndSet = async (url, hook) => {
-  getRequest(
-    url,
-    (res) => {
-      const newObj = {};
-      res.data.data.map(el => {
-        newObj[el.column_name] = el.data_type;
-      });
-      hook(newObj);
-    },
-    (err) => {
-      console.log(err);
-    },
-    {
-      'Authorization': `Bearer ${Cookies.get('jwt')}`
-    }
-  );
-};
 
 const fieldTypes = {
   'integer': 'number',
@@ -55,15 +35,17 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
   const {
     tableLinks, 
     tableName, 
-    tableData
+    tableData,
+    handleRefresh,
+    empty,
+    fetchAndSet,
+    tableDataTypes,
+    setTableDataTypes
   } = useManagementContext();
   const {
     error,
     setError
   } = useGlobalContext();
-
-  //hooks
-  const [tableDataTypes, setTableDataTypes] = useState(null);
 
   //callbacks
   const handleClose = () => {
@@ -90,8 +72,8 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
       tableLinks[tableName][0],
       formObj,
       (res) => {
-        console.log(res.data.data);
         handleClose();
+        handleRefresh();
       },
       (err) => {
         console.error(err);
@@ -120,24 +102,52 @@ const AgregarModal = ({showAgregar, setShowAgregar}) => {
       <Modal.Header>
         <Modal.Title>Agrega registros</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className='mt-0' style={{marginTop: '0'}}>
         {error.show && <DangerAlert/>}
         {tableDataTypes && 
         <Form onSubmit={handleSubmit}>
           <Form.Group className='m-3 mb-4' controlId={`${tableName}`}>
             <Row>
-              {Object.keys(tableData[0]).map((field, i) => { 
-                return !field.startsWith('id') && (
-                <div className='mt-2'key={field}>
-                  <Form.Label>{field}</Form.Label>
-                  <Form.Control 
-                    name={field} 
-                    type={fieldTypes[tableDataTypes[field]]} 
-                    step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
-                  >
-                  </Form.Control>
-                </div>)
-            })}
+            {
+              tableData && !empty && Object.keys(tableData[0]).map((field, i) => { 
+                if(field.startsWith('id') && i === 0) return undefined;
+                else {
+                  return (
+                    !field.startsWith('_') &&
+                    <div className='mt-2'key={field}>
+                      <Form.Label>{field}</Form.Label>
+                      <Form.Control 
+                        name={field} 
+                        type={fieldTypes[tableDataTypes[field]]} 
+                        step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
+                      >
+                      </Form.Control>
+                    </div>
+                  )
+                }
+              })
+            }
+
+            {
+              tableData && empty && Object.values(tableData).map((field, i) => { 
+                field = field.column_name;
+                if(field.startsWith('id') && i === 0) return undefined;
+                else {
+                  return (
+                    !field.startsWith('_') &&
+                    <div className='mt-2'key={field}>
+                      <Form.Label>{field}</Form.Label>
+                      <Form.Control 
+                        name={field} 
+                        type={fieldTypes[tableDataTypes[field]]} 
+                        step={tableDataTypes[field] === 'numeric' ? 'any' : undefined}
+                      >
+                      </Form.Control>
+                    </div>
+                  )
+                }
+              })
+            }
             </Row>
           </Form.Group>
           <Row>

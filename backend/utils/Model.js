@@ -1,33 +1,58 @@
 class Model {
-  constructor(table, pool) {
+  constructor(table, primary_key, pool) {
     this.table = table;
     this.pool = pool;
+    this.primary_key = primary_key;
+    this.transaction_mode = false;
   }
 
-  async dataTypes() {
+  transaction_on() {
+    this.transaction_mode = true;
+  }
+
+  transaction_off() {
+    this.transaction_mode = false;
+  }
+
+  async dataTypes(client) {
     const query = `
       SELECT column_name, data_type FROM information_schema.columns
       WHERE table_name='${this.table}';
     `;
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async find(fields = null, filters = null) {
+  async find({fields, filters, join}, client) {
     let query = '';
 
     if(!fields && !filters) {
       query = `
-      SELECT * 
-      FROM ${this.table}
-    `;
-    } else if(!filters) {
+        SELECT * 
+        FROM ${this.table}
+      `;
+    } else if(!fields && filters) {
+      for(const [key, value] of Object.entries(filters)) {
+        conditions.push(`${key}=${value}`);
+      }
+
       query = {
         text: `
         SELECT ${Object.keys(fields).join(', ')}
-        FROM ${this.table}
-        `,
-        values: Object.values(fields)
+        FROM ${this.table} ${this.table.charAt(0)}
+        WHERE ${conditions.join(' AND ')}
+        ${join ? join : ''}
+      `
+
+      };
+    } else if(fields && !filters) {
+      query = {
+        text: `
+        SELECT ${fields.join(', ')}
+        FROM ${this.table} ${this.table.charAt(0)}
+        ${join ? join : ''}
+        `
       };
     } else {
       const conditions = [];
@@ -38,18 +63,19 @@ class Model {
 
       query = {
         text: `
-        SELECT ${Object.keys(fields).join(', ')}
-        FROM ${this.table}
-        WHERE ${conditions.join(' AND ')}
+        SELECT ${fields.join(', ')}
+        FROM ${this.table} ${this.table.charAt(0)}
+        ${join ? join : ''}
+        WHERE ${this.table.charAt(0)}.${conditions.join(' AND ')}
       `,
-      values: Object.values(fields)
       };
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async findOne(identifier, data) {
+  async findOne(identifier, data, client) {
     const query = {
       text: `
         SELECT ${data.join(', ')} 
@@ -59,10 +85,11 @@ class Model {
       values: [Object.values(identifier)[0]]
     };
     
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
-  async create(obj) {
+  async create(obj, client) {
     const query = {
       text: `
         INSERT INTO ${this.table} (
@@ -74,10 +101,29 @@ class Model {
       values: Object.values(obj)
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   };
 
-  async update(identifier, data) {
+  async updateAField(data, client) {
+
+    const query =
+      `
+      UPDATE ${this.table} 
+      SET ${
+        data.type === 'numeric' || data.type === 'integer' ?
+        `${data.field}=${data.value}` :
+        `${data.field}='${data.value}'`
+      }
+      WHERE ${this.primary_key}=${data.id}
+      `
+    ;
+
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
+  }
+
+  async update(identifier, data, client) {
     let lastItemPosition = 0;
 
     const values = Object.keys(data).map(
@@ -96,25 +142,71 @@ class Model {
       values: [...Object.values(data), Object.values(identifier)[0]]
     }
 
-    return await this._execute(query);
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
+  }
+
+  async delete(arr, client) {
+    const query = {
+      text: `
+        DELETE FROM ${this.table}
+        WHERE ${this.primary_key} IN (${arr.join(', ')})
+      `
+    }
+
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
+  }
+
+  async deleteWhere({field, value}, client) {
+    const query = {
+      text: `
+        DELETE FROM ${this.table}
+        WHERE ${field}=${value}
+      `
+    }
+    
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
+  } 
+
+  async getColumns(client) {
+    const query = `
+      SELECT column_name 
+      FROM information_schema.columns
+      WHERE table_name='${this.table}';
+    `;
+
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
   }
 
   //private methods
 
-  async _execute(query) {
-    let results;
-    let client;
-    try {
-      client = await this.pool.connect();
+  async _execute(query, client) {
+    if(!this.transaction_mode) {
+      let results;
+      let client = await this.pool.connect();
       const qRes = await client.query(query)
+      client.on('error', (err) => {
+        client.release();
+        throw err;
+      });
       results = qRes.rows;
-    } catch(error) {
-      throw error;
-    } finally {
       client.release();
-    }
+      return results;
+    } else {
+      const qRes = await client.query(query)
+      client.on('error', (err) => {
+        client.release();
+        throw err;
+      });
+      let results = qRes.rows;
 
-    return results;
+      this.transaction_off();
+
+      return results;
+    }
   }
 }
 

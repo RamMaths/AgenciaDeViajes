@@ -17,7 +17,7 @@ import './Content.css';
 
 const Content = () => {
   return  (
-    <div className='w-100 mb-4'>
+    <div className='w-100 mb-4' style={{minHeight: '80vh'}}>
       <div className='ms-3 me-3 ms-md-5 me-md-5'>
         <div className='d-flex flex-column justify-content-center align-items-center'>
           <div className='d-flex justify-content-center w-100'>

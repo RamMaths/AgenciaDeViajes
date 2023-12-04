@@ -1,34 +1,116 @@
 //bootstrap components
 import { 
   Table,
-  Container
+  Container,
+  Button,
+  InputGroup
 } from 'react-bootstrap';
 
-const ResultTable = ({table}) => {
+//context
+import { useManagementContext } from './Management';
+
+//react
+import { useState } from 'react';
+
+//my components
+import UpdateModal from './UpdateModal';
+
+//css
+import './Management.css';
+
+const ResultTable = () => {
+  const {
+    editing,
+    empty,
+    tableData,
+    tableName,
+    cannotUpdate,
+    deletions
+  } = useManagementContext();
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [updateField, setUpdateField] = useState({});
+
+  cannotUpdate.current.clear();
+  deletions.current.clear();
+
+  const handleUpdate = ({field, value, id}) => {
+    setShowUpdate(true);
+    setUpdateField({field, value, id});
+  };
 
   return (
     <Container>
+      <UpdateModal showUpdate={showUpdate} setShowUpdate={setShowUpdate} updateField={updateField}/>
       <Table className='shadow-sm' responsive={window.innerWidth <= 750} striped bordered hover>
         <thead>
-          <tr>
-            {table && Object.keys(table[0]).map(field => {
-              return <th key={field}>{field}</th>
+          <tr className='align-middle text-center'>
+            {tableData && !empty && Object.keys(tableData[0]).map((field, i) => {
+              if(field.startsWith('id') || field.startsWith('_')) cannotUpdate.current.set(i);
+              return (
+                <th key={field}>
+                  {field.startsWith('_') ? field.replace('_', '') : field}
+                </th>
+              )
             })}
+            {
+              empty && tableData.map((objField, i) => {
+                const column = objField.column_name;
+                if(column.startsWith('id') || column.startsWith('_')) cannotUpdate.current.set(i);
+                return <th key={objField.column_name}>
+                  {column.startsWith('_') ? column.replace('_', '') : column}
+                </th>
+              })
+            }
           </tr>
         </thead>
         <tbody>
-          {table && table.map((row, i) => (
-            <tr key={i}>
-              {Object.values(row).map(value => (
-                <td key={value}>{value}</td>
-              ))}
-              <td>hello</td>
+          {tableData && !empty && tableData.map((row, i) => {
+            return <tr key={Object.values(row)[i] + `${i}`} className='align-middle text-center'>
+              {Object.values(row).map((value, i) => {
+                return <td 
+                  className={(!cannotUpdate.current.has(i) && editing) ? 'field' : undefined}
+                  onClick={(!cannotUpdate.current.has(i) && editing) ? () => handleUpdate({
+                    field: Object.keys(row)[i],
+                    value,
+                    id: Object.values(row)[0]
+                  }) : undefined}
+                  key={value + `${i}`}>
+                  {value}
+                </td>
+                })}
+              {
+                editing && <td className='d-flex align-items-center justify-content-center' key={`${i}-checkbox`}><Checkbox id_element={Object.values(row)[0]}/></td>}
             </tr>
-          ))}
+          })}
         </tbody>
       </Table>
     </Container>
   );
 };
+
+const Checkbox = ({id_element}) => {
+  const {
+    deletions,
+    setDeletions
+  } = useManagementContext();
+
+  const handleChange = (event) => {
+
+    if(event.target.checked) {
+      deletions.current.set(id_element);
+    } else {
+      deletions.current.delete(id_element);
+    }
+    
+  };
+
+  return (
+    <div>
+      <InputGroup>
+        <InputGroup.Checkbox onChange={(event) => handleChange(event)}/>
+      </InputGroup>
+    </div>
+  )
+}
 
 export default ResultTable;

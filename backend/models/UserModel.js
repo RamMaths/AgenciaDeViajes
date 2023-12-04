@@ -3,8 +3,8 @@ const bcrypt = require('bcrypt');
 const Model = require('../utils/Model');
 
 class UserModel extends Model {
-  constructor(table, pool) {
-    super(table, pool);
+  constructor(table, primary_key, pool) {
+    super(table, primary_key, pool);
   }
 
   async create(user) {
@@ -60,6 +60,6 @@ class UserModel extends Model {
 
 }
 
-const user = new UserModel('Usuarios', pool);
+const user = new UserModel('Usuarios', 'id_usuario', pool);
 
 module.exports = user;

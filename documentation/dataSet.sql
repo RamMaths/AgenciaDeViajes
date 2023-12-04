@@ -5,3 +5,4 @@ INSERT INTO Sexos(nombre) VALUES('Masculino');
 
 --Roles
 INSERT INTO Roles(nombre) VALUES('Usuario');
+INSERT INTO Roles(nombre) VALUES('Administrador');

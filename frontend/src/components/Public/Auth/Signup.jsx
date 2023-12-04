@@ -69,7 +69,7 @@ const Signup = () => {
   if(serverError) return Error('Error interno del servidor');
 
   return (
-    <Container className='mt-5 mb-5'>
+    <Container className='mt-5 mb-5' style={{minHeight: '80vh'}}>
       {error.show && <DangerAlert/>}
       <Form className='' onSubmit={handleSubmit}>
         <Container>

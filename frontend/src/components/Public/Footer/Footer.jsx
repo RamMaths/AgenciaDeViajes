@@ -15,7 +15,7 @@ const Footer = () => {
       py-4
       px-5
       footer
-      ${location.pathname === "/login" && "fixed-bottom"}`}
+      fixed-bottom`}
       style={{
         boxShadow: '0px -4px 8px -2px #bababa'
       }}>
