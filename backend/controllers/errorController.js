@@ -39,6 +39,8 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'internal error';
 
+  console.log(err);
+
   if(process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if(process.env.NODE_ENV === 'production') {

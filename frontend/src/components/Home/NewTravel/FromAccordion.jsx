@@ -14,9 +14,7 @@ import {
 //react 
 import { 
   useEffect,
-  useState,
-  createContext,
-  useContext
+  useState
 } from 'react';
 
 //context
@@ -31,6 +29,7 @@ const FromAccordion = () => {
   const [states, setStates] = useState(null);
   const [state, setState] = useState(null);
   const [cities, setCities] = useState(null);
+  const [city, setCity] = useState(null);
   const {origen, setOrigen} = useNewTravelContext();
 
   const handleCountryChange = (e) => {
@@ -42,7 +41,7 @@ const FromAccordion = () => {
   };
 
   const handleCityChange = (e) => {
-    setOrigen(e.target.value);
+    setCity(e.target.value);
   };
 
   useEffect(() => {
@@ -100,7 +99,7 @@ const FromAccordion = () => {
           });
 
           setCities(obj);
-          setOrigen(res.data.data[0].nombre)
+          setCity(res.data.data[0].nombre)
         },
         (err) => {
           console.error(err);
@@ -112,7 +111,11 @@ const FromAccordion = () => {
     }
   }, [state]);
 
-  console.log(cities);
+  useEffect(() => {
+    if(city) {
+      setOrigen(cities[city]);
+    }
+  }, [city])
 
   return (
     <Container>
@@ -155,7 +158,7 @@ const FromAccordion = () => {
                 <Form.Label className='pt-3'>
                   Ciudad
                 </Form.Label>
-                <Form.Select name='estado' onChange={handleCityChange}>
+                <Form.Select name='ciudad' onChange={handleCityChange}>
                   {
                     Array.from(Object.entries(cities)).map(([ciudad, id]) => {
                       return <option key={`ciudad-${id}`}>{ciudad}</option>

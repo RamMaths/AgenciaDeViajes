@@ -8,7 +8,7 @@ travelRouter
   .get(
     authController.protect,
     authController.restrictTo(2),
-    travelController.getAllHotels
+    travelController.getAllTravels
   )
   .post(
     authController.protect,
@@ -18,7 +18,7 @@ travelRouter
   .delete(
     authController.protect,
     authController.restrictTo(2),
-    travelController.deleteHotel
+    travelController.deleteTravel
   )
   .patch(
     authController.protect,

@@ -7,5 +7,5 @@ class ReservationModel extends Model {
   }
 }
 
-const reservationModel = new ReservationModel('viajes', 'id_viaje', pool);
+const reservationModel = new ReservationModel('reservaciones', 'id_reservacion', pool);
 module.exports = reservationModel;

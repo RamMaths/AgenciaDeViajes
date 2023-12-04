@@ -31,7 +31,11 @@ const ToAccordion = () => {
   const [states, setStates] = useState(null);
   const [state, setState] = useState(null);
   const [cities, setCities] = useState(null);
-  const {destino, setDestino} = useNewTravelContext();
+  const [city, setCity] = useState(null);
+
+  const {
+    destino, setDestino
+  } = useNewTravelContext();
 
   const handleCountryChange = (e) => {
     setCountry(e.target.value);
@@ -42,7 +46,8 @@ const ToAccordion = () => {
   };
 
   const handleCityChange = (e) => {
-    setDestino(e.target.value);
+    setCity(e.target.value);
+    setDestino(cities[city]);
   };
 
   useEffect(() => {
@@ -100,7 +105,7 @@ const ToAccordion = () => {
           });
 
           setCities(obj);
-          setDestino(res.data.data[0].nombre)
+          setCity(res.data.data[0].nombre)
         },
         (err) => {
           console.error(err);
@@ -112,7 +117,11 @@ const ToAccordion = () => {
     }
   }, [state]);
 
-  console.log(cities);
+  useEffect(() => {
+    if(city) {
+      setDestino(cities[city]);
+    }
+  }, [city])
 
   return (
     <Container>
@@ -155,7 +164,7 @@ const ToAccordion = () => {
                 <Form.Label className='pt-3'>
                   Ciudad
                 </Form.Label>
-                <Form.Select name='estado' onChange={handleCityChange}>
+                <Form.Select name='ciudad' onChange={handleCityChange}>
                   {
                     Array.from(Object.entries(cities)).map(([ciudad, id]) => {
                       return <option key={`ciudad-${id}`}>{ciudad}</option>

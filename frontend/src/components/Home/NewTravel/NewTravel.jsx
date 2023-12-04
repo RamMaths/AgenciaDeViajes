@@ -7,7 +7,8 @@ import {
   Container,
   Form,
   Row,
-  Col
+  Col,
+  Button
 } from 'react-bootstrap';
 
 //context
@@ -18,26 +19,44 @@ import {
   useState,
   useContext,
   createContext,
-  useEffect
+  useEffect,
+  useRef
 } from 'react';
+
+//router
+import { useNavigate } from 'react-router-dom';
 
 //creating the context
 const NewTravelContext = createContext();
 export const useNewTravelContext = () => useContext(NewTravelContext);
 
 //my components
+import DangerAlert from '../../DangerAlert';
 import FromAccordion from './FromAccordion';
 import ToAccordion from './ToAccordion';
+import People from './People';
+import Reservation from './Reservation';
 
 //utils
-import { getRequest } from '../../utils/Utils';
+import { 
+  getRequest,
+  postRequest
+} from '../../utils/Utils';
 
 const NewTravel = () => {
-  const { user } = useGlobalContext();
+  const navigate = useNavigate();
+
+  const { 
+    user,
+    error,
+    setError
+  } = useGlobalContext();
   const [origen, setOrigen] = useState(null);
   const [destino, setDestino] = useState(null);
   const [transports, setTransports] = useState(null);
   const [transport, setTransport] = useState(null);
+  const [people, setPeople] = useState({});
+  const [reservations, setReservations] = useState({});
 
   useEffect(() => {
     getRequest(
@@ -64,21 +83,87 @@ const NewTravel = () => {
     setTransport(e.target.value);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const formObj = Object.fromEntries(formData.entries());
+
+    if (formObj.fecha_inicio.length <= 0) {
+      setError({show: true, message: 'No has seleccionado la fecha de inicio'});
+      return;
+    }
+
+    if (!transport) {
+      setError({show: true, message: 'No has seleccionado un medio de transporte'})
+      return;
+    }
+
+    if (!origen) {
+      setError({show: true, message: 'No has seleccionado el origen del viaje'})
+      return;
+    }
+
+    if (!destino) {
+      setError({show: true, message: 'No has seleccionado el destino del viaje'});
+      return;
+    }
+
+    if (origen == destino) {
+      setError({show: true, message: 'Selecciona un destino diferente'});
+      return;
+    }
+
+    if (Object.values(people).length <= 0) {
+      setError({show: true, message: 'Necesita haber al menos una persona en el viaje'});
+      return;
+    }
+
+    postRequest(
+      `http://${import.meta.env.VITE_HOST}:3000/api/travels`,
+      {
+        id_usuario: user.id_usuario,
+        travel: {
+          fecha_salida: formObj.fecha_inicio,
+          id_origen: origen,
+          id_destino: destino,
+          id_medio_transporte: transports[transport]
+        },
+        people: Object.values(people),
+        reservations: Object.values(reservations)
+      },
+      res => {
+        navigate('/home');
+      },
+      err => {
+        console.log(err);
+      },
+      {
+        'Authorization': `Bearer ${Cookies.get('jwt')}`
+      }
+    )
+  };
+
   return (
     <NewTravelContext.Provider value={{
       origen,
       setOrigen,
       destino,
-      setDestino
+      setDestino,
+      people,
+      setPeople,
+      reservations,
+      setReservations
     }}>
       <Container style={{minHeight: '72vh'}}>
-        <Form>
+        { error.show && <DangerAlert/> }
+        <Form id='general' onSubmit={handleSubmit}>
           <Form.Group className='mt-3' controlId='fechaNacField'>
             <Form.Label>
               Fecha de Ida
             </Form.Label>
             <Form.Control type='date' name='fecha_inicio'></Form.Control>
           </Form.Group>
+        </Form>
           { 
             transports &&
             <div className='mt-3'>
@@ -121,6 +206,7 @@ const NewTravel = () => {
             <Accordion.Item>
               <Accordion.Header>Personas</Accordion.Header>
               <Accordion.Body>
+                <People/>
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
@@ -129,10 +215,18 @@ const NewTravel = () => {
             <Accordion.Item>
               <Accordion.Header>Reservaciones (opcional)</Accordion.Header>
               <Accordion.Body>
+                <Reservation/>
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
-        </Form>
+
+          <Row className='mt-3'>
+            <Col>
+              <Button className='' type='submit' form='general'>
+                Crear itinerario
+              </Button>
+            </Col>
+          </Row>
       </Container>
     </NewTravelContext.Provider>
   )

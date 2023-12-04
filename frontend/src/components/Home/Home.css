@@ -1,0 +1,7 @@
+.deletion {
+  cursor: pointer;
+}
+
+.deletion:hover {
+  background-color: #f5425a;
+}

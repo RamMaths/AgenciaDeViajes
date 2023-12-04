@@ -3,24 +3,12 @@ const catchAsync = require('../utils/catchAsync');
 const TravelModel = require('../models/TravelModel');
 const ItineraryModel = require('../models/ItineraryModel');
 const PersonModel = require('../models/PersonModel');
+const ReservationModel = require('../models/ReservationModel');
 const pool = require('../utils/dbConnection');
 
 // hotels
-exports.getAllHotels = catchAsync(async(req, res, next) => {
-  let filters = {};
-
-  if(req.query.id_ciudad) {
-    filters.id_ciudad = req.query.id_ciudad
-  } else {
-    filters = undefined;
-    return next(new AppError('No has seleccionado una ciudad'), 404);
-  }
-
-  let result = await HotelModel.find({
-    fields: ['h.id_hotel', 'h.nombre', 'h.direccion','c.nombre as ciudad'],
-    join: 'JOIN ciudades c ON c.id_ciudad = h.id_ciudad',
-    filters
-  });
+exports.getAllTravels = catchAsync(async(req, res, next) => {
+  let result = await ItineraryModel.getItineraries(req.query.id);
 
   res.status(200).json({
     status: 'success',
@@ -50,7 +38,7 @@ exports.createTravel = catchAsync(async(req, res, next) => {
 
     itineray = itineray[0];
 
-    const travel = await TravelModel.create({
+    await TravelModel.create({
       fecha_salida: req.body.travel.fecha_salida,
       id_origen: req.body.travel.id_origen,
       id_destino: req.body.travel.id_destino,
@@ -69,6 +57,17 @@ exports.createTravel = catchAsync(async(req, res, next) => {
       }, client);
     }
 
+    if(req.body.reservations) {
+      for(const reservation of req.body.reservations) {
+        await ReservationModel.create({
+          fecha_inicio: reservation.fecha_inicio,
+          fecha_termino: reservation.fecha_termino,
+          id_hotel: reservation.id_hotel,
+          id_itinerario: itineray.id_itinerario
+        }, client);
+      }
+    }
+
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');
@@ -83,12 +82,41 @@ exports.createTravel = catchAsync(async(req, res, next) => {
   });
 });
 
-exports.deleteHotel = catchAsync(async (req, res, next) => {
-  const result = await HotelModel.delete(req.body.arr);
+exports.deleteTravel = catchAsync(async (req, res, next) => {
+  const client = await pool.connect()
+
+  try {
+    await client.query('BEGIN');
+
+    await ReservationModel.deleteWhere({
+      field: 'id_itinerario',
+      value: req.body.id_itinerario
+    }, client);
+
+    await PersonModel.deleteWhere({
+      field: 'id_itinerario',
+      value: req.body.id_itinerario
+    }, client);
+
+    await TravelModel.deleteWhere({
+      field: 'id_itinerario',
+      value: req.body.id_itinerario
+    }, client);
+
+    await ItineraryModel.deleteWhere({
+      field: 'id_itinerario',
+      value: req.body.id_itinerario
+    }, client);
+
+    await client.query('COMMIT');
+    client.release();
+  } catch(e) {
+    await client.query('ROLLBACK');
+    return next(e);
+  }
 
   res.status(200).json({
-    status: 'success',
-    data: result
+    status: 'success'
   });
 });
 

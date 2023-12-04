@@ -158,6 +158,18 @@ class Model {
     return await this._execute(query, client);
   }
 
+  async deleteWhere({field, value}, client) {
+    const query = {
+      text: `
+        DELETE FROM ${this.table}
+        WHERE ${field}=${value}
+      `
+    }
+    
+    if(client) this.transaction_on();
+    return await this._execute(query, client);
+  } 
+
   async getColumns(client) {
     const query = `
       SELECT column_name 
